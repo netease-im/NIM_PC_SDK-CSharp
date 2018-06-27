@@ -221,6 +221,12 @@ namespace NIM
     [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension, IntPtr user_data);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate ulong nim_vchat_audio_data_sync_cb_func(
+    IntPtr data,
+    ulong size,
+    double sample_rate, IntPtr user_data);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate void nim_vchat_enum_device_devpath_sync_cb_func(bool ret, NIMDeviceType type,
 	[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension, 
     IntPtr user_data);

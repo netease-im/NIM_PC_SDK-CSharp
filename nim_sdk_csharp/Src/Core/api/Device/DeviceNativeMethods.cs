@@ -12,7 +12,7 @@ namespace NIM
         //引用C中的方法（考虑到不同平台下的C接口引用方式差异，如[DllImport("__Internal")]，[DllImport("nimapi")]等） 
         #region NIM C SDK native methods
 
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
+
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_start_device", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nim_vchat_start_device(NIMDeviceType type,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string device_path, uint fps,
@@ -23,13 +23,13 @@ namespace NIM
         internal static extern void nim_vchat_end_device(NIMDeviceType type,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension);
 
-       
+  
 		[DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_audio_data_cb", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nim_vchat_set_audio_data_cb(bool capture,
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension,
             nim_vchat_audio_data_cb_func cb, IntPtr user_data);
 
-
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
 		//自定义音频数据
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_custom_audio_data", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool nim_vchat_custom_audio_data(ulong time, IntPtr data, uint size,
@@ -100,8 +100,45 @@ namespace NIM
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_accompanying_sound", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool nim_vchat_accompanying_sound( Byte id,UInt64 time,IntPtr data,UInt32 size,UInt32 rate,UInt32 channels, 
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension);
+#else
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_audio_data_sync_cb", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_vchat_set_audio_data_sync_cb(nim_vchat_audio_data_sync_cb_func cb,
+         [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension,
+        IntPtr user_data);
 
-        
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_speaker", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_vchat_set_speaker(bool speak_on);
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_speaker_enabled", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_speaker_enabled();
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_microphone_mute", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_vchat_set_microphone_mute(bool mute);
+
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_is_microphone_mute", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_is_microphone_mute();
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_start_audio_mixing", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_start_audio_mixing([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] String file_path,
+            bool loopback, bool replace, int cycle, float volume);
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_pause_audio_mixing", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_pause_audio_mixing();
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_resume_audio_mixing", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_resume_audio_mixing();
+
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_stop_audio_mixing", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_stop_audio_mixing();
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_play_captured_audio_volume", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_set_play_captured_audio_volume(float volume);
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_audio_mixing_volume", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_set_audio_mixing_volume(float volume);
+
 #endif
 
         #endregion

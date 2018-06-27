@@ -60,6 +60,15 @@ namespace NIM
     /// <param name="volume">音量值0-100</param>
     /// <param name="json_extension">扩展</param>
     public delegate void AudioDataExHandler(ulong time, IntPtr data, uint size, int channels, int rate, int volume, string json_extension);
+
+    /// <summary>
+    /// 音频数据委托
+    /// </summary>
+    /// <param name="time">毫秒级时间戳</param>
+    /// <param name="data">数据指针， PCM</param>
+    /// <param name="size">数据长途sizeof(char)</param>
+    /// <param name="rate">PCM数据的采样频率</param>
+    public delegate void AudioDataSyncHandler(IntPtr data,ref ulong size, int rate);
     #endregion
     public class DeviceAPI
 	{
@@ -90,7 +99,8 @@ namespace NIM
 			NimUtility.DelegateConverter.Invoke<DeviceStatusHandler>(userData,type,status,devicePath);
 		}
 
-		private static void StartDeviceCallback(NIMDeviceType type, bool ret, string jsonExtension, IntPtr userData)
+        [MonoPInvokeCallback(typeof(nim_vchat_start_device_cb_func))]
+        private static void StartDeviceCallback(NIMDeviceType type, bool ret, string jsonExtension, IntPtr userData)
 		{
 			try
 			{
@@ -169,7 +179,7 @@ namespace NIM
 		/// <returns>无返回值</returns>
 		public static void StartDevice(NIMDeviceType type, string devicePath, uint fps, NIMStartDeviceJsonEX StartDeviceInfo,StartDeviceResultHandler handler)
 		{
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY|| UNITY_STANDALONE_WIN
+
             if (StartDeviceInfo==null)
 			{
 				StartDeviceInfo = new NIMStartDeviceJsonEX();
@@ -177,8 +187,6 @@ namespace NIM
 			string json_info = StartDeviceInfo.Serialize();
 			var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(handler);
 			DeviceNativeMethods.nim_vchat_start_device(type, devicePath, fps, json_info, StartDeviceCb, ptr);
-#else
-#endif
         }
 
         /// <summary>
@@ -188,10 +196,7 @@ namespace NIM
         /// <returns>无返回值</returns>
         public static void EndDevice(NIMDeviceType type)
 		{
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             DeviceNativeMethods.nim_vchat_end_device(type, "");
-#else
-#endif
         }
 
         /// <summary>
@@ -202,14 +207,12 @@ namespace NIM
         /// <returns>无返回值</returns>
         public static void SetAudioCaptureDataCb(AudioDataHandler handler, NIMVChatCustomAudioJsonEx audioJsonEx)
 		{
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             string audioInfo = "";
 			if(audioJsonEx!=null)
 				audioInfo = audioJsonEx.Serialize();
 			var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(handler);
 			DeviceNativeMethods.nim_vchat_set_audio_data_cb(true, audioInfo, AudioDataCb, ptr);
-#else
-#endif
+
         }
 
         /// <summary>
@@ -447,6 +450,88 @@ namespace NIM
         public static bool NimVchatAccompanyingSound(Byte id, UInt64 time, IntPtr data, UInt32 size, UInt32 rate, UInt32 channels,string json_extension)
         {
             return DeviceNativeMethods.nim_vchat_accompanying_sound(id, time, data, size, rate, channels, json_extension);
+        }
+#else
+        private static readonly nim_vchat_audio_data_sync_cb_func AudioDataSyncCb = AudioDataSyncCallback;
+
+        private static ulong AudioDataSyncCallback(IntPtr data, ulong size, double sample_rate, IntPtr userData)
+        {
+            if (userData != IntPtr.Zero)
+            {
+                try
+                {
+                    AudioDataSyncHandler AudioDataSyncCb = NimUtility.DelegateConverter.ConvertFromIntPtr<AudioDataSyncHandler>(userData);
+                    if (AudioDataSyncCb!=null)
+                        AudioDataSyncCb(data, ref size, Convert.ToInt32(sample_rate));
+                  
+                }
+                catch
+                {
+
+                }
+            }
+            return size;
+        }
+        /// <summary>
+        /// 监听采集音频数据（可以不监听，通过启动设备kNIMDeviceTypeAudioOut由底层播放）
+        /// </summary>
+        /// <param name="handler">回调</param>
+        /// <param name="audioJsonEx">json封装类，SampleRate有效,(要求返回的音频数据为指定的采样频，缺省为0使用默认采样频</param>
+        /// <returns>无返回值</returns>
+        public static void SetAudioCaptureDataSyncCb(AudioDataSyncHandler handler)
+        {
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(handler);
+            DeviceNativeMethods.nim_vchat_set_audio_data_sync_cb(AudioDataSyncCb,"",ptr);
+
+        }
+        public static void SetSpeaker(bool speaker_on)
+        {
+            DeviceNativeMethods.nim_vchat_set_speaker(speaker_on);
+        }
+
+        public static bool Speaker_Enabled()
+        {
+            return DeviceNativeMethods.nim_vchat_speaker_enabled();
+        }
+
+        public static void SetMicrophoneMute(bool mute)
+        {
+            DeviceNativeMethods.nim_vchat_set_microphone_mute(mute);
+        }
+
+        public static bool IsMicroPhoneMute()
+        {
+            return DeviceNativeMethods.nim_vchat_is_microphone_mute();
+        }
+
+        public static void StartAudioMixing(String filePath, bool loopback, bool replace, int cycle, float volume)
+        {
+            DeviceNativeMethods.nim_vchat_start_audio_mixing(filePath, loopback, replace, cycle, volume);
+        }
+
+        public static bool PauseAudioMixing()
+        {
+            return DeviceNativeMethods.nim_vchat_pause_audio_mixing();
+        }
+
+        public static bool ResumeAudioMixing()
+        {
+            return DeviceNativeMethods.nim_vchat_resume_audio_mixing();
+        }
+
+        public static bool StopAudioMixing()
+        {
+            return DeviceNativeMethods.nim_vchat_stop_audio_mixing();
+        }
+
+        public static bool SetAudioMixingVolume(float volume)
+        {
+            return DeviceNativeMethods.nim_vchat_set_audio_mixing_volume(volume);
+        }
+
+        public static bool SetPlayCapturedAudioVolume(float volume)
+        {
+            return DeviceNativeMethods.nim_vchat_set_play_captured_audio_volume(volume);
         }
 #endif
 

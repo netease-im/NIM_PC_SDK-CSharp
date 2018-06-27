@@ -148,6 +148,12 @@ namespace NIM
             /// </summary>
             [JsonProperty(PropertyName = "update_timetag")]
             private long? UpdatedTimetag { get; set; }
+
+            /// <summary>
+            /// 服务端扩展字段，此字段客户端sdk只读，服务端api读写
+            /// </summary>
+            [JsonProperty(PropertyName = "server_ex")]
+            public string ServerExt { get; set; }
         }
 
         public class NIMFriends : NimJsonObject<NIMFriends>

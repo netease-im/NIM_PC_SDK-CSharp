@@ -64,23 +64,15 @@ namespace NIM
         /// <summary>
         /// 本人其他端响应通知
         /// </summary>
-        public onSessionSyncAckNotifyHandler onSessionSyncAckNotify;
-
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
-		/// <summary>
+        public onSessionSyncAckNotifyHandler onSessionSyncAckNotify;	
+        /// <summary>
 		/// 音量状态通知
 		/// </summary>
-		public onSessionVolumeNotifyHandler onSessionVolumeStateChanged;
-
+		public onSessionVolumeNotifyHandler onSessionVolumeStateChanged; 
         /// <summary>
         /// 实时状态通知
         /// </summary>
-        public onSessionRealtimeInfoNotifyHandler onSessionRealtimeStateNotify;
-
-		/// <summary>
-		/// 直播状态通知
-		/// </summary>
-		public OnSessionLiveStateInfoNotifyHandler onSessionLiveStateNotify;
+        public onSessionRealtimeInfoNotifyHandler onSessionRealtimeStateNotify; 
         /// <summary>
         /// mp4状态通知
         /// </summary>
@@ -89,6 +81,13 @@ namespace NIM
         /// 音频录制状态通知
         /// </summary>
         public OnSessionAuRecordInfoNotifyHandler onSessionAuRecordInfoStateNotify;
+
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+		/// <summary>
+		/// 直播状态通知
+		/// </summary>
+		public OnSessionLiveStateInfoNotifyHandler onSessionLiveStateNotify;
+       
 #endif
     }
 
@@ -100,194 +99,200 @@ namespace NIM
 		private static nim_vchat_opt_cb_func VChatNormalOptCb = OnNormalOpCompletedCallback;
 		private static nim_vchat_opt2_cb_func VChatOpt2Cb = OnVchatRoomCreatedCallback;
 
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+
         private static nim_vchat_mp4_record_opt_cb_func  VChatMP4RecordOptCb = OnMP4RecordOpCompletedCallback;
 		private static nim_vchat_audio_record_opt_cb_func VChatAudioRecordStartCb = OnAudioRecordStartCallback;
 		private static nim_vchat_audio_record_opt_cb_func VChatAudioRecordStopCb = OnAudioRecordStopCallback;
-#endif
 
+
+        [MonoPInvokeCallback(typeof(nim_vchat_opt_cb_func))]
         private static void OnNormalOpCompletedCallback(bool ret, int code, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatOptHandler>(user_data, ret, code, json_extension);
 		}
-		private static void VChatSessionStatusCallback(NIMVideoChatSessionType type, long channel_id, int code, string json_extension, IntPtr user_data)
+
+        [MonoPInvokeCallback(typeof(nim_vchat_cb_func))]
+        private static void VChatSessionStatusCallback(NIMVideoChatSessionType type, long channel_id, int code, string json_extension, IntPtr user_data)
         {
-            System.Diagnostics.Debug.WriteLine("type:" + type.ToString() + "json: " + json_extension);
-            if (json_extension == null)
+            try
             {
-                return;
-            }
-            NIMVChatSessionInfo info = null;
-            switch (type)
-            {
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeStartRes:
-                    {
-                        if (session_status.onSessionStartRes != null)
+                System.Diagnostics.Debug.WriteLine("type:" + type.ToString() + "json: " + json_extension);
+                if (json_extension == null)
+                {
+                    return;
+                }
+                NIMVChatSessionInfo info = null;
+                switch (type)
+                {
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeStartRes:
                         {
-                            session_status.onSessionStartRes.DynamicInvoke(channel_id, code);
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeInviteNotify:
-                    {
-                        if (session_status.onSessionInviteNotify != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
+                            if (session_status.onSessionStartRes != null)
                             {
-                                session_status.onSessionInviteNotify.DynamicInvoke(channel_id, info.Uid, info.Type, info.Time, info.CustomInfo);
+                                session_status.onSessionStartRes(channel_id, code);
                             }
                         }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeCalleeAckRes:
-                    {
-                        if (session_status.onSessionCalleeAckRes != null)
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeInviteNotify:
                         {
-                            session_status.onSessionCalleeAckRes.DynamicInvoke(channel_id, code);
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeCalleeAckNotify:
-                    {
-                        if (session_status.onSessionCalleeAckNotify != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
+                            if (session_status.onSessionInviteNotify != null)
                             {
-                                session_status.onSessionCalleeAckNotify.DynamicInvoke(channel_id, info.Uid, info.Type, info.Accept > 0);
-                            }
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeControlRes:
-                    {
-                        if (session_status.onSessionControlRes != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
-                            {
-                                session_status.onSessionControlRes.DynamicInvoke(channel_id, code, info.Type);
-                            }
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeControlNotify:
-                    {
-                        if (session_status.onSessionControlNotify != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
-                            {
-                                session_status.onSessionControlNotify.DynamicInvoke(channel_id, info.Uid, info.Type);
-                            }
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeConnect:
-                    {
-                        if (session_status.onSessionConnectNotify != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
-                                session_status.onSessionConnectNotify.DynamicInvoke(channel_id, code, info.RecordFile, info.VideoRecordFile);
-                            else
-                                session_status.onSessionConnectNotify.DynamicInvoke(channel_id, code, null, null);
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypePeopleStatus:
-                    {
-                        if (session_status.onSessionPeopleStatus != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
-                            {
-                                if(code== Convert.ToInt32(NIMVideoChatSessionStatus.kNIMVideoChatSessionStatusLeaved))
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
                                 {
-                                    if(info.Status == Convert.ToInt32(NIMVideoChatUserLeftType.kNIMVChatUserLeftTimeout))
-                                    {
-                                        code = Convert.ToInt32(NIMVideoChatSessionStatus.kNIMVideoChatSessionStatusTimeOutLeaved);
-                                    }
+                                    session_status.onSessionInviteNotify(channel_id, info.Uid, info.Type, info.Time, info.CustomInfo);
                                 }
-                                session_status.onSessionPeopleStatus.DynamicInvoke(channel_id, info.Uid, code);
                             }
                         }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeNetStatus:
-                    {
-                        if (session_status.onSessionNetStatus != null)
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeCalleeAckRes:
                         {
-							info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
+                            if (session_status.onSessionCalleeAckRes != null)
                             {
-                                session_status.onSessionNetStatus.DynamicInvoke(channel_id, code, info.Uid);
+                                session_status.onSessionCalleeAckRes(channel_id, code);
                             }
                         }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeHangupRes:
-                    {
-                        if (session_status.onSessionHangupRes != null)
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeCalleeAckNotify:
                         {
-                            session_status.onSessionHangupRes.DynamicInvoke(channel_id, code);
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeHangupNotify:
-                    {
-                        if (session_status.onSessionHangupNotify != null)
-                        {
-                            session_status.onSessionHangupNotify.DynamicInvoke(channel_id, code);
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeSyncAckNotify:
-                    {
-                        if (session_status.onSessionSyncAckNotify != null)
-                        {
-                            info = NIMVChatSessionInfo.Deserialize(json_extension);
-                            if (info != null)
+                            if (session_status.onSessionCalleeAckNotify != null)
                             {
-                                session_status.onSessionSyncAckNotify.DynamicInvoke(channel_id, code, info.Uid, info.Type, info.Accept > 0, info.Time, info.Client);
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    session_status.onSessionCalleeAckNotify(channel_id, info.Uid, info.Type, info.Accept > 0);
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeControlRes:
+                        {
+                            if (session_status.onSessionControlRes != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    session_status.onSessionControlRes(channel_id, code, info.Type);
+                                }
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeControlNotify:
+                        {
+                            if (session_status.onSessionControlNotify != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    session_status.onSessionControlNotify(channel_id, info.Uid, info.Type);
+                                }
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeConnect:
+                        {
+                            if (session_status.onSessionConnectNotify != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                    session_status.onSessionConnectNotify(channel_id, code, info.RecordFile, info.VideoRecordFile, info.Time, info.NIMVChatTrafficStatRX, info.NIMVChatTrafficStatTX);
+                                else
+                                    session_status.onSessionConnectNotify(channel_id, code, null, null, 0, 0L, 0L);
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypePeopleStatus:
+                        {
+                            if (session_status.onSessionPeopleStatus != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    if (code == Convert.ToInt32(NIMVideoChatSessionStatus.kNIMVideoChatSessionStatusLeaved))
+                                    {
+                                        if (info.Status == Convert.ToInt32(NIMVideoChatUserLeftType.kNIMVChatUserLeftTimeout))
+                                        {
+                                            code = Convert.ToInt32(NIMVideoChatSessionStatus.kNIMVideoChatSessionStatusTimeOutLeaved);
+                                        }
+                                    }
+                                    session_status.onSessionPeopleStatus(channel_id, info.Uid, code);
+                                }
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeNetStatus:
+                        {
+                            if (session_status.onSessionNetStatus != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    session_status.onSessionNetStatus(channel_id, code, info.Uid);
+                                }
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeHangupRes:
+                        {
+                            if (session_status.onSessionHangupRes != null)
+                            {
+                                session_status.onSessionHangupRes(channel_id, code);
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeHangupNotify:
+                        {
+                            if (session_status.onSessionHangupNotify != null)
+                            {
+                                session_status.onSessionHangupNotify(channel_id, code);
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeSyncAckNotify:
+                        {
+                            if (session_status.onSessionSyncAckNotify != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    session_status.onSessionSyncAckNotify(channel_id, code, info.Uid, info.Type, info.Accept > 0, info.Time, info.Client);
+                                }
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeMp4Notify:
+                        {
+                            if (session_status.onSessionMp4InfoStateNotify != null)
+                            {
+                                NIMVChatMP4State mp4_info = NIMVChatMP4State.Deserialize(json_extension);
+                                session_status.onSessionMp4InfoStateNotify(channel_id, code, mp4_info);
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeInfoNotify:
+                        if (session_status.onSessionRealtimeStateNotify != null)
+                        {
+                            var state = NIMVChatRealtimeState.Deserialize(json_extension);
+                            session_status.onSessionRealtimeStateNotify(channel_id, code, state);
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeVolumeNotify:
+                        if (session_status.onSessionVolumeStateChanged != null)
+                        {
+                            var volume = NIMVchatAudioVolumeState.Deserialize(json_extension);
+                            session_status.onSessionVolumeStateChanged(channel_id, code, volume);
+                        }
+                        break;
+
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeAuRecordNotify:
+                        {
+                            if (session_status.onSessionAuRecordInfoStateNotify != null)
+                            {
+                                NIMVChatAuRecordState record_state = NIMVChatAuRecordState.Deserialize(json_extension);
+                                session_status.onSessionAuRecordInfoStateNotify(channel_id, code, record_state);
+                            }
+                        }
+                        break;
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeMp4Notify:
-                    {
-                        if(session_status.onSessionMp4InfoStateNotify!=null)
-                        {
-                            NIMVChatMP4State mp4_info = NIMVChatMP4State.Deserialize(json_extension);
-                            session_status.onSessionMp4InfoStateNotify(channel_id,code, mp4_info);
-                        }
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeInfoNotify:
-                    if (session_status.onSessionRealtimeStateNotify != null)
-                    {
-                        var state = NIMVChatRealtimeState.Deserialize(json_extension);
-                        session_status.onSessionRealtimeStateNotify(channel_id, code, state);
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeVolumeNotify:
-                    if (session_status.onSessionVolumeStateChanged != null)
-                    {
-                        var volume = NIMVchatAudioVolumeState.Deserialize(json_extension);
-                        session_status.onSessionVolumeStateChanged(channel_id, code, volume);
-                    }
-                    break;
-                case NIMVideoChatSessionType.kNIMVideoChatSessionTypeAuRecordNotify:
-                    {
-                        if(session_status.onSessionAuRecordInfoStateNotify!=null)
-                        {
-                            NIMVChatAuRecordState record_state = NIMVChatAuRecordState.Deserialize(json_extension);
-                            session_status.onSessionAuRecordInfoStateNotify(channel_id,code, record_state);
-                        }
-                    }
-                    break;
                 case NIMVideoChatSessionType.kNIMVideoChatSessionTypeLiveState:
 					{
 						if (session_status.onSessionLiveStateNotify != null)
@@ -298,22 +303,35 @@ namespace NIM
 					}
 					break;
 #endif
+                }
             }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("exception:"+ex.ToString());
+            }
+            
         }
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
-		private static void OnMP4RecordOpCompletedCallback(bool ret, int code, string file, long time, string json_extension, IntPtr user_data)
+
+        [MonoPInvokeCallback(typeof(nim_vchat_mp4_record_opt_cb_func))]
+        private static void OnMP4RecordOpCompletedCallback(bool ret, int code, string file, long time, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatMp4RecordOptHandler>(user_data, ret, code, file, time, json_extension);
 		}
-		private static void OnAudioRecordStartCallback(bool ret, int code, string file, Int64 time, string json_extension, IntPtr user_data)
+
+        [MonoPInvokeCallback(typeof(nim_vchat_audio_record_opt_cb_func))]
+        private static void OnAudioRecordStartCallback(bool ret, int code, string file, Int64 time, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatAudioRecordOptHandler>(user_data, ret, code, file, time, json_extension);
 		}
-		private static void OnAudioRecordStopCallback(bool ret, int code, string file, Int64 time, string json_extension, IntPtr user_data)
+
+        [MonoPInvokeCallback(typeof(nim_vchat_audio_record_opt_cb_func))]
+        private static void OnAudioRecordStopCallback(bool ret, int code, string file, Int64 time, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatAudioRecordOptHandler>(user_data, ret, code, file, time, json_extension);
 		}
-#endif
+
+
+        [MonoPInvokeCallback(typeof(nim_vchat_opt2_cb_func))]
         private static void OnVchatRoomCreatedCallback(int code, long channel_id, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatOpt2Handler>(user_data, code, channel_id, json_extension);
@@ -323,34 +341,37 @@ namespace NIM
         /// <summary>
         /// VCHAT初始化，需要在SDK的Client.Init成功之后
         /// </summary>
-        /// <param name="path">nrtc等资源库路径，Unity下有效</param>
+        /// <param name="path">nrtc等资源库路径，Unity下pc有效</param>
+        /// <param name="context">android 上下文,Unity下android有效</param>
         /// <returns>初始化结果，如果是false则以下所有接口调用无效</returns>
-        public static bool Init(string path)
+        public static bool Init(string path,IntPtr context)
 		{
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY|| UNITY_STANDALONE_WIN
+
             string info = "";
-			if(!String.IsNullOrEmpty(path))
-			{
+#if UNITY_STANDALONE_WIN
+            if (!String.IsNullOrEmpty(path))
+#endif
+            {
 				NIMVChatResourceJsonEx json = new NIMVChatResourceJsonEx();
 				json.Path = path;
 				info = json.Serialize();
 			}
-			return VChatNativeMethods.nim_vchat_init(info);
+			
+#if UNITY_ANDROID
+            return VChatNativeMethods.nim_vchat_init(context);
 #else
-            return false;
+            return VChatNativeMethods.nim_vchat_init(info);
 #endif
+
         }
 
-		/// <summary>
-		/// VCHAT释放，需要在SDK的Client.Cleanup之前
-		/// </summary>
-		/// <returns>无返回值</returns>
-		public static void Cleanup()
+        /// <summary>
+        /// VCHAT释放，需要在SDK的Client.Cleanup之前
+        /// </summary>
+        /// <returns>无返回值</returns>
+        public static void Cleanup()
 		{
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY|| UNITY_STANDALONE_WIN
             VChatNativeMethods.nim_vchat_cleanup("");
-#else
-#endif
         }
 
         /// <summary>
@@ -360,11 +381,8 @@ namespace NIM
         /// <returns>无返回值</returns>
         public static void SetSessionStatusCb(NIMVChatSessionStatus session)
 		{
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             session_status = session;
 			VChatNativeMethods.nim_vchat_set_cb_func(VChatStatusCb, IntPtr.Zero);
-#else
-#endif
         }
 
         /// <summary>
@@ -377,14 +395,10 @@ namespace NIM
         /// <returns> bool true 调用成功，false 调用失败可能有正在进行的通话</returns>
         public static bool Start(NIMVideoChatMode mode,string apns_text,NIMVChatInfo info,string customInfo = null)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             if (info == null)
 				info = new NIMVChatInfo();
 			string json_extension = info.Serialize();
             return VChatNativeMethods.nim_vchat_start(mode, apns_text, customInfo, json_extension, IntPtr.Zero);
-#else
-            return false;
-#endif
         }
 
 		/// <summary>
@@ -395,11 +409,7 @@ namespace NIM
 		/// 
 		public static bool SetMode(NIMVideoChatMode mode)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             return VChatNativeMethods.nim_vchat_set_talking_mode(mode, "");
-#else
-            return false;
-#endif
         }
 
 		/// <summary>
@@ -411,14 +421,12 @@ namespace NIM
 		/// <returns>bool true 调用成功，false 调用失败（可能channel_id无匹配，如要接起另一路通话前先结束当前通话）</returns>
 		public static bool CalleeAck(long channel_id, bool accept, NIMVChatInfo info)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY|| UNITY_STANDALONE_WIN
             if (info == null)
 				info = new NIMVChatInfo();
             string json_extension = info.Serialize();
+            string debug_info = string.Format("callee ack.cid:{0},accept:{1},info:{2}", channel_id, accept, json_extension);
+            System.Diagnostics.Debug.WriteLine(debug_info);
             return VChatNativeMethods.nim_vchat_callee_ack(channel_id, accept, json_extension, IntPtr.Zero);
-#else
-            return false;
-#endif
         }
 
 		/// <summary>
@@ -429,11 +437,7 @@ namespace NIM
 		/// <returns>bool true 调用成功，false 调用失败</returns>
 		public static bool ChatControl(long channel_id, NIMVChatControlType type)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             return VChatNativeMethods.nim_vchat_control(channel_id, type, "", IntPtr.Zero);
-#else
-            return false;
-#endif
         }
 
 		/// <summary>
@@ -443,10 +447,7 @@ namespace NIM
 		/// <returns>无返回值</returns>
 		public static void End(string jsonExtension="")
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY|| UNITY_STANDALONE_WIN
             VChatNativeMethods.nim_vchat_end(jsonExtension);
-#else
-#endif
         }
 
         /// <summary>
@@ -456,10 +457,7 @@ namespace NIM
         /// <returns>无返回值</returns>
         public static void SetViewerMode(bool viewer)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             VChatNativeMethods.nim_vchat_set_viewer_mode(viewer);
-#else
-#endif
         }
 
         /// <summary>
@@ -468,11 +466,7 @@ namespace NIM
         /// <returns>bool true 观众模式，false 非观众模式</returns>
         public static bool GetViewerMode()
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             return VChatNativeMethods.nim_vchat_get_viewer_mode();
-#else
-            return false;
-#endif
         }
 
 		/// <summary>
@@ -482,11 +476,7 @@ namespace NIM
 		/// <returns>无返回值</returns>
 		public static void SetAudioMute(bool muted)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             VChatNativeMethods.nim_vchat_set_audio_mute(muted);
-#else
-
-#endif
         }
 
         /// <summary>
@@ -495,11 +485,7 @@ namespace NIM
         /// <returns>bool true 静音，false 不静音</returns>
         public static bool GetAudioMuteEnabled()
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             return VChatNativeMethods.nim_vchat_audio_mute_enabled();
-#else
-            return false;
-#endif
         }
 
 
@@ -515,11 +501,8 @@ namespace NIM
 		/// <returns>无返回值</returns>
 		public static void SetMemberInBlackList(string uid, bool add, bool audio, string json_extension, NIMVChatOptHandler cb)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             VChatNativeMethods.nim_vchat_set_member_in_blacklist(uid, add, audio, json_extension, VChatNormalOptCb, ptr);
-#else
-#endif
         }
 
 
@@ -533,7 +516,6 @@ namespace NIM
         /// <returns>无返回值</returns>
         public static void CreateRoom(string room_name, string custom_info, NIMCreateRoomJsonEx createRoomInfo, NIMVChatOpt2Handler cb)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             string json_extension = null;
 			if(createRoomInfo!=null)
 			{
@@ -541,8 +523,6 @@ namespace NIM
 			}
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             VChatNativeMethods.nim_vchat_create_room(room_name, custom_info, json_extension, VChatOpt2Cb, ptr);
-#else
-#endif
         }
 
         /// <summary>
@@ -555,7 +535,6 @@ namespace NIM
         /// <returns>bool true 调用成功，false 调用失败可能有正在进行的通话</returns>
         public static bool JoinRoom(NIMVideoChatMode mode, string room_name, NIMJoinRoomJsonEx joinRoomInfo, NIMVChatOpt2Handler cb)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             if (joinRoomInfo == null)
             {
                 joinRoomInfo = new NIMJoinRoomJsonEx();
@@ -568,9 +547,7 @@ namespace NIM
             string	json_extension = joinRoomInfo.Serialize();
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             return VChatNativeMethods.nim_vchat_join_room(mode, room_name, json_extension, VChatOpt2Cb, ptr);
-#else
-            return false;
-#endif
+
         }
 
 		/// <summary>
@@ -583,12 +560,64 @@ namespace NIM
 		/// <returns>无返回值</returns>
 		public static void SetCustomData(bool custom_audio, bool custom_video, string json_extension, NIMVChatOptHandler cb)
         {
-#if NIMAPI_UNDER_WIN_DESKTOP_ONLY|| UNITY_STANDALONE_WIN
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             VChatNativeMethods.nim_vchat_set_custom_data(custom_audio, custom_video, json_extension, VChatNormalOptCb, ptr);
-#else
-#endif
         }
+
+        /// <summary>
+        /// 开始录制MP4，，同一个成员一次只允许一个MP4录制文件，在通话开始的时候才有实际数据
+        /// </summary>
+        /// <param name="path">文件录制路径</param>
+        /// <param name="recordInfo">json扩展封装类，见NIMVChatMP4RecordJsonEx</param>
+        /// <param name="cb">结果回调</param>
+        /// <returns>无返回值</returns>
+        public static void StartRecord(string path, NIMVChatMP4RecordJsonEx recordInfo, NIMVChatMp4RecordOptHandler cb)
+        {
+            if (recordInfo == null)
+                recordInfo = new NIMVChatMP4RecordJsonEx();
+            string json_extension = recordInfo.Serialize();
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
+            VChatNativeMethods.nim_vchat_start_record(path, json_extension, VChatMP4RecordOptCb, ptr);
+        }
+
+        /// <summary>
+        /// 停止录制MP4
+        /// </summary>
+        /// <param name="recordInfo">json扩展封装类，见NIMVChatMP4RecordJsonEx</param>
+        /// <param name="cb">结果回调</param>
+        /// <returns>无返回值</returns>
+        public static void StopRecord(NIMVChatMP4RecordJsonEx recordInfo, NIMVChatMp4RecordOptHandler cb)
+        {
+            if (recordInfo == null)
+                recordInfo = new NIMVChatMP4RecordJsonEx();
+            string json_extension = recordInfo.Serialize();
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
+            VChatNativeMethods.nim_vchat_stop_record(json_extension, VChatMP4RecordOptCb, ptr);
+        }
+
+        /// <summary>
+        /// 开始录制音频文件，一次只允许一个音频录制文件
+        /// </summary>
+        /// <param name="path">文件录制路径</param>
+        /// <param name="cb">结果回调</param>
+        /// <returns>无返回值</returns>
+        public static void StartAudioRecord(string path, NIMVChatAudioRecordOptHandler cb)
+        {
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
+            VChatNativeMethods.nim_vchat_start_audio_record(path, "", VChatAudioRecordStartCb, ptr);
+        }
+
+        /// <summary>
+        /// 停止录制音频文件
+        /// </summary>
+        /// <param name="cb">结果回调</param>
+        /// <returns>无返回值</returns>
+        public static void StopAudioRecord(NIMVChatAudioRecordOptHandler cb)
+        {
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
+            VChatNativeMethods.nim_vchat_stop_audio_record("", VChatAudioRecordStopCb, ptr);
+        }
+
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
         /// <summary>
         /// 设置不自动旋转对方画面，默认打开，全局有效（重新发起时也生效）
@@ -610,59 +639,6 @@ namespace NIM
             return VChatNativeMethods.nim_vchat_rotate_remote_video_enabled();
         }
 
-		/// <summary>
-		/// 开始录制MP4，，同一个成员一次只允许一个MP4录制文件，在通话开始的时候才有实际数据
-		/// </summary>
-		/// <param name="path">文件录制路径</param>
-		/// <param name="recordInfo">json扩展封装类，见NIMVChatMP4RecordJsonEx</param>
-		/// <param name="cb">结果回调</param>
-		/// <returns>无返回值</returns>
-		public static void StartRecord(string path, NIMVChatMP4RecordJsonEx recordInfo, NIMVChatMp4RecordOptHandler  cb)
-        {
-			if (recordInfo == null)
-				recordInfo = new NIMVChatMP4RecordJsonEx();
-			string json_extension = recordInfo.Serialize();
-            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
-            VChatNativeMethods.nim_vchat_start_record(path, json_extension, VChatMP4RecordOptCb, ptr);
-        }
-
-		/// <summary>
-		/// 停止录制MP4
-		/// </summary>
-		/// <param name="recordInfo">json扩展封装类，见NIMVChatMP4RecordJsonEx</param>
-		/// <param name="cb">结果回调</param>
-		/// <returns>无返回值</returns>
-		public static void StopRecord(NIMVChatMP4RecordJsonEx recordInfo, NIMVChatMp4RecordOptHandler cb)
-        {
-			if (recordInfo == null)
-				recordInfo = new NIMVChatMP4RecordJsonEx();
-			string json_extension= recordInfo.Serialize();
-            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
-            VChatNativeMethods.nim_vchat_stop_record(json_extension, VChatMP4RecordOptCb, ptr);
-        }
-
-		/// <summary>
-		/// 开始录制音频文件，一次只允许一个音频录制文件
-		/// </summary>
-		/// <param name="path">文件录制路径</param>
-		/// <param name="cb">结果回调</param>
-		/// <returns>无返回值</returns>
-		public static void StartAudioRecord(string path,NIMVChatAudioRecordOptHandler cb)
-		{
-			var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
-			VChatNativeMethods.nim_vchat_start_audio_record(path, "", VChatAudioRecordStartCb, ptr);
-		}
-
-		/// <summary>
-		/// 停止录制音频文件
-		/// </summary>
-		/// <param name="cb">结果回调</param>
-		/// <returns>无返回值</returns>
-		public static void StopAudioRecord(NIMVChatAudioRecordOptHandler cb)
-		{
-			var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
-			VChatNativeMethods.nim_vchat_stop_audio_record("", VChatAudioRecordStopCb, ptr);
-		}
 
 		/// <summary>
 		/// 通话中修改直播推流地址（主播有效）
@@ -789,11 +765,15 @@ namespace NIM
         /// </summary>
         /// <param name="json_extension">可扩展添加kNIMVChatSessionId，用于指定对应的通话</param>
         /// <param name="cb">操作结果的回调函数，当通话通话不存在或通话</param>
-        //public static void NIMVChatRelogin(string json_extension,NIMVChatOptHandler cb)
-        //{
-        //    var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
-        //    VChatNativeMethods.nim_vchat_relogin(json_extension, VChatNormalOptCb, ptr);
-        //}
+        public static void NIMVChatRelogin(string sessionid, NIMVChatOptHandler cb)
+        {
+            
+            NIMVChatInfo vchatinfo = new NIMVChatInfo();
+            vchatinfo.SessionId = sessionid;
+            string json_extension = vchatinfo.Serialize();
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
+            VChatNativeMethods.nim_vchat_relogin(json_extension, VChatNormalOptCb, ptr);
+        }
 
 #endif
     }
