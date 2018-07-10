@@ -1503,11 +1503,18 @@ namespace NIM
 
 	public class NIMVChatResourceJsonEx : NimUtility.NimJsonObject<NIMVChatResourceJsonEx>
 	{
-		/// <summary>
-		/// nrtc相关库资源路径
-		/// </summary>
-		[Newtonsoft.Json.JsonProperty(PropertyName = "path", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-		public string Path { get; set; }
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+        /// <summary>
+        /// 服务器配置文件路径
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty(PropertyName = "server_setting_path", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+#else
+        /// <summary>
+        /// nrtc相关库资源路径,Unity PC平台下有效
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty(PropertyName = "path", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+#endif
+        public string Path { get; set; }
 
 		public NIMVChatResourceJsonEx()
 		{

@@ -95,28 +95,28 @@ namespace NIM
     {
        
         private static NIMVChatSessionStatus session_status;
-		private static nim_vchat_cb_func VChatStatusCb =VChatSessionStatusCallback;
-		private static nim_vchat_opt_cb_func VChatNormalOptCb = OnNormalOpCompletedCallback;
-		private static nim_vchat_opt2_cb_func VChatOpt2Cb = OnVchatRoomCreatedCallback;
+		private static NimVchatCbFunc VChatStatusCb =VChatSessionStatusCallback;
+		private static NimVchatOptCbFunc VChatNormalOptCb = OnNormalOpCompletedCallback;
+		private static NimVchatOpt2CbFunc VChatOpt2Cb = OnVchatRoomCreatedCallback;
 
 
-        private static nim_vchat_mp4_record_opt_cb_func  VChatMP4RecordOptCb = OnMP4RecordOpCompletedCallback;
-		private static nim_vchat_audio_record_opt_cb_func VChatAudioRecordStartCb = OnAudioRecordStartCallback;
-		private static nim_vchat_audio_record_opt_cb_func VChatAudioRecordStopCb = OnAudioRecordStopCallback;
+        private static NimVchatMp4RecordOptCbFunc  VChatMP4RecordOptCb = OnMP4RecordOpCompletedCallback;
+		private static NimVchatAudioRecordOptCbFunc VChatAudioRecordStartCb = OnAudioRecordStartCallback;
+		private static NimVchatAudioRecordOptCbFunc VChatAudioRecordStopCb = OnAudioRecordStopCallback;
 
 
-        [MonoPInvokeCallback(typeof(nim_vchat_opt_cb_func))]
+        [MonoPInvokeCallback(typeof(NimVchatOptCbFunc))]
         private static void OnNormalOpCompletedCallback(bool ret, int code, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatOptHandler>(user_data, ret, code, json_extension);
 		}
 
-        [MonoPInvokeCallback(typeof(nim_vchat_cb_func))]
+        [MonoPInvokeCallback(typeof(NimVchatCbFunc))]
         private static void VChatSessionStatusCallback(NIMVideoChatSessionType type, long channel_id, int code, string json_extension, IntPtr user_data)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("type:" + type.ToString() + "json: " + json_extension);
+                //System.Diagnostics.Debug.WriteLine("type:" + type.ToString() + "json: " + json_extension);
                 if (json_extension == null)
                 {
                     return;
@@ -312,32 +312,50 @@ namespace NIM
             
         }
 
-        [MonoPInvokeCallback(typeof(nim_vchat_mp4_record_opt_cb_func))]
+        [MonoPInvokeCallback(typeof(NimVchatMp4RecordOptCbFunc))]
         private static void OnMP4RecordOpCompletedCallback(bool ret, int code, string file, long time, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatMp4RecordOptHandler>(user_data, ret, code, file, time, json_extension);
 		}
 
-        [MonoPInvokeCallback(typeof(nim_vchat_audio_record_opt_cb_func))]
+        [MonoPInvokeCallback(typeof(NimVchatAudioRecordOptCbFunc))]
         private static void OnAudioRecordStartCallback(bool ret, int code, string file, Int64 time, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatAudioRecordOptHandler>(user_data, ret, code, file, time, json_extension);
 		}
 
-        [MonoPInvokeCallback(typeof(nim_vchat_audio_record_opt_cb_func))]
+        [MonoPInvokeCallback(typeof(NimVchatAudioRecordOptCbFunc))]
         private static void OnAudioRecordStopCallback(bool ret, int code, string file, Int64 time, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatAudioRecordOptHandler>(user_data, ret, code, file, time, json_extension);
 		}
 
 
-        [MonoPInvokeCallback(typeof(nim_vchat_opt2_cb_func))]
+        [MonoPInvokeCallback(typeof(NimVchatOpt2CbFunc))]
         private static void OnVchatRoomCreatedCallback(int code, long channel_id, string json_extension, IntPtr user_data)
 		{
 			NimUtility.DelegateConverter.Invoke<NIMVChatOpt2Handler>(user_data, code, channel_id, json_extension);
 		}
 
 
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+        /// <summary>
+        /// VCHAT初始化，需要在SDK的Client.Init成功之后
+        /// </summary>
+        /// <param name="path">服务器配置文件路径 </param>
+        /// <returns>初始化结果，如果是false则以下所有接口调用无效</returns>
+        public static bool Init(string server_setting_path)
+		{
+            string info = "";
+            if (!String.IsNullOrEmpty(server_setting_path))
+            {
+				NIMVChatResourceJsonEx json = new NIMVChatResourceJsonEx();
+				json.Path = server_setting_path;
+				info = json.Serialize();
+			}
+            return VChatNativeMethods.nim_vchat_init(info);
+        }
+#else
         /// <summary>
         /// VCHAT初始化，需要在SDK的Client.Init成功之后
         /// </summary>
@@ -348,9 +366,7 @@ namespace NIM
 		{
 
             string info = "";
-#if UNITY_STANDALONE_WIN
             if (!String.IsNullOrEmpty(path))
-#endif
             {
 				NIMVChatResourceJsonEx json = new NIMVChatResourceJsonEx();
 				json.Path = path;
@@ -364,6 +380,9 @@ namespace NIM
 #endif
 
         }
+#endif
+
+
 
         /// <summary>
         /// VCHAT释放，需要在SDK的Client.Cleanup之前
@@ -775,6 +794,23 @@ namespace NIM
             VChatNativeMethods.nim_vchat_relogin(json_extension, VChatNormalOptCb, ptr);
         }
 
+        /// <summary>
+        /// 设置播放对端音频静音，全局有效（重新发起时也生效）；此开关打开不播放，但不影响解码及录制
+        /// </summary>
+        /// <param name="muted"> muted true 静音，false 不静音</param>
+        public static void NIMVChatSetAudioPlayMute(bool muted)
+        {
+            VChatNativeMethods.nim_vchat_set_audio_play_mute(muted);
+        }
+
+        /// <summary>
+        /// 获取播放对端音频静音状态
+        /// </summary>
+        /// <returns> bool true 静音，false 不静音</returns>
+        public static bool NIMVChatAudioPlayMuteEnabled()
+        {
+            return VChatNativeMethods.nim_vchat_audio_mute_enabled();
+        }
 #endif
     }
 }
