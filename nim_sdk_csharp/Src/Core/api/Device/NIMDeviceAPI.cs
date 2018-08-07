@@ -118,7 +118,8 @@ namespace NIM
 			NimUtility.DelegateConverter.Invoke<StartDeviceResultHandler>(userData, type, ret);
 		}
 
-		private static void AudioDataCallback(ulong time, IntPtr data, uint size, string jsonExtension, IntPtr userData)
+        [MonoPInvokeCallback(typeof(nim_vchat_audio_data_cb_func))]
+        private static void AudioDataCallback(ulong time, IntPtr data, uint size, string jsonExtension, IntPtr userData)
 		{
 			if (userData != IntPtr.Zero)
 			{
@@ -207,12 +208,14 @@ namespace NIM
         /// <returns>无返回值</returns>
         public static void SetAudioCaptureDataCb(AudioDataHandler handler, NIMVChatCustomAudioJsonEx audioJsonEx)
 		{
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY || UNITY_STANDALONE_WIN
             string audioInfo = "";
 			if(audioJsonEx!=null)
 				audioInfo = audioJsonEx.Serialize();
 			var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(handler);
 			DeviceNativeMethods.nim_vchat_set_audio_data_cb(true, audioInfo, AudioDataCb, ptr);
-
+#else
+#endif
         }
 
         /// <summary>
@@ -235,7 +238,7 @@ namespace NIM
         }
 
         /// <summary>
-        /// 自定义音频数据接口, 采样位深只支持16或32， kNIMDeviceSampleRate支持8000，16000，32000，44100
+        /// 自定义音频数据接口, 采样位深只支持16或32（Unity PC只支持16),kNIMDeviceSampleRate支持8000，16000，32000，44100.PC下有效
         /// </summary>
         /// <param name="time">时间毫秒级</param>
         /// <param name="data">音频数据pcm格式</param>
@@ -431,10 +434,11 @@ namespace NIM
         /// 设置底层针对麦克风采集数据处理开关接口，默认关闭啸叫检测（此接口是全局接口，在sdk初始化后设置一直有效）
         /// </summary>
         /// <param name="work">true 标识打开啸叫检测功能，false 标识关闭</param>
-        public static void SetAudioHowlingSuppression(bool work)
-        {
-            DeviceNativeMethods.nim_vchat_set_audio_howling_suppression(work);
-        }
+        /// v5.5接口取消
+        //  public static void SetAudioHowlingSuppression(bool work)
+        //  {
+        //      DeviceNativeMethods.nim_vchat_set_audio_howling_suppression(work);
+        //  }
 
         /// <summary>
         /// 自定义音频伴音数据接口，不需要打开自定义数据开关, 采样时间必须为10ms的整数倍, 采样位深只支持16
@@ -454,6 +458,7 @@ namespace NIM
 #else
         private static readonly nim_vchat_audio_data_sync_cb_func AudioDataSyncCb = AudioDataSyncCallback;
 
+        [MonoPInvokeCallback(typeof(nim_vchat_audio_data_sync_cb_func))]
         private static ulong AudioDataSyncCallback(IntPtr data, ulong size, double sample_rate, IntPtr userData)
         {
             if (userData != IntPtr.Zero)
@@ -463,7 +468,6 @@ namespace NIM
                     AudioDataSyncHandler AudioDataSyncCb = NimUtility.DelegateConverter.ConvertFromIntPtr<AudioDataSyncHandler>(userData);
                     if (AudioDataSyncCb!=null)
                         AudioDataSyncCb(data, ref size, Convert.ToInt32(sample_rate));
-                  
                 }
                 catch
                 {
@@ -472,11 +476,11 @@ namespace NIM
             }
             return size;
         }
+
         /// <summary>
-        /// 监听采集音频数据（可以不监听，通过启动设备kNIMDeviceTypeAudioOut由底层播放）
+        /// 监听采集音频数据 同步操作,Android ios有效
         /// </summary>
         /// <param name="handler">回调</param>
-        /// <param name="audioJsonEx">json封装类，SampleRate有效,(要求返回的音频数据为指定的采样频，缺省为0使用默认采样频</param>
         /// <returns>无返回值</returns>
         public static void SetAudioCaptureDataSyncCb(AudioDataSyncHandler handler)
         {
@@ -484,54 +488,101 @@ namespace NIM
             DeviceNativeMethods.nim_vchat_set_audio_data_sync_cb(AudioDataSyncCb,"",ptr);
 
         }
+
+        /// <summary>
+        /// 设置扬声器 android,ios有效
+        /// </summary>
+        /// <param name="speaker_on">是否开启扬声器 true:开启</param>
         public static void SetSpeaker(bool speaker_on)
         {
             DeviceNativeMethods.nim_vchat_set_speaker(speaker_on);
         }
 
-        public static bool Speaker_Enabled()
+        /// <summary>
+        /// 扬声器状态 android,ios有效
+        /// </summary>
+        /// <returns>扬声器是否开启，true:开启</returns>
+        public static bool SpeakerEnabled()
         {
             return DeviceNativeMethods.nim_vchat_speaker_enabled();
         }
 
+        /// <summary>
+        /// 设置麦克风静音 android,ios有效
+        /// </summary>
+        /// <param name="mute">是否静音 true:静音</param>
         public static void SetMicrophoneMute(bool mute)
         {
             DeviceNativeMethods.nim_vchat_set_microphone_mute(mute);
         }
 
+        /// <summary>
+        /// 获得麦克风静音状态 
+        /// </summary>
+        /// <returns>是否静音 true:静音</returns>
         public static bool IsMicroPhoneMute()
         {
             return DeviceNativeMethods.nim_vchat_is_microphone_mute();
         }
 
+        /// <summary>
+        /// 开启混音 Android,ios有效
+        /// </summary>
+        /// <param name="filePath">可播放文件地址</param>
+        /// <param name="loopback">是否循环播放 true:开启</param>
+        /// <param name="replace">是否替换采集声音数据,true:开启</param>
+        /// <param name="cycle">循环次数</param>
+        /// <param name="volume">混音音量值 [0f-1f]</param>
         public static void StartAudioMixing(String filePath, bool loopback, bool replace, int cycle, float volume)
         {
             DeviceNativeMethods.nim_vchat_start_audio_mixing(filePath, loopback, replace, cycle, volume);
         }
 
+        /// <summary>
+        /// 暂停混音 Android,ios有效
+        /// </summary>
+        /// <returns>true:接口调用成功</returns>
         public static bool PauseAudioMixing()
         {
             return DeviceNativeMethods.nim_vchat_pause_audio_mixing();
         }
 
+        /// <summary>
+        /// 恢复混音 Android,ios有效
+        /// </summary>
+        /// <returns>true:接口调用成功</returns>
         public static bool ResumeAudioMixing()
         {
             return DeviceNativeMethods.nim_vchat_resume_audio_mixing();
         }
 
+        /// <summary>
+        /// 结束混音 Android,ios有效
+        /// </summary>
+        /// <returns>true:接口调用成功</returns>
         public static bool StopAudioMixing()
         {
             return DeviceNativeMethods.nim_vchat_stop_audio_mixing();
         }
 
+        /// <summary>
+        /// 设置混音音量 Android,ios有效
+        /// </summary>
+        /// <param name="volume">音量值 [0f-1f]</param>
+        /// <returns></returns>
         public static bool SetAudioMixingVolume(float volume)
         {
             return DeviceNativeMethods.nim_vchat_set_audio_mixing_volume(volume);
         }
 
-        public static bool SetPlayCapturedAudioVolume(float volume)
+        /// <summary>
+        /// 设置耳返音量 Android,ios有效
+        /// </summary>
+        /// <param name="volume">耳返音量值 [0f-1f]</param>
+        /// <returns></returns>
+        public static bool SetEarphoneMonitorAudioVolume(float volume)
         {
-            return DeviceNativeMethods.nim_vchat_set_play_captured_audio_volume(volume);
+            return DeviceNativeMethods.nim_vchat_set_earphone_monitor_audio_volume(volume);
         }
 #endif
 

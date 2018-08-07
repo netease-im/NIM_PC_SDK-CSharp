@@ -1,0 +1,5 @@
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimChatRoom.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimChatRoom.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\Debug\NimChatRoom.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\Debug\NimChatRoom.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\Debug\NimChatRoom.csprojResolveAssemblyReference.cache

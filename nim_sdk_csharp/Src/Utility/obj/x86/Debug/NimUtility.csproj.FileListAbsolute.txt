@@ -1,0 +1,11 @@
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimUtility.dll
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimUtility.pdb
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x86\Debug\NimUtility.csprojResolveAssemblyReference.cache
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x86\Debug\NimUtility.dll
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x86\Debug\NimUtility.pdb
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x86\Debug\NimUtility.dll
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x86\Debug\NimUtility.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x86\Debug\NimUtility.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x86\Debug\NimUtility.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x86\Debug\NimUtility.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x86\Debug\NimUtility.pdb

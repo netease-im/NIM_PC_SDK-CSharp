@@ -1,0 +1,6 @@
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\NimHttp.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\NimHttp.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\nim_http_csharp.XML
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Http\obj\x64\Release\NimHttp.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Http\obj\x64\Release\NimHttp.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Http\obj\x64\Release\NimHttp.csprojResolveAssemblyReference.cache

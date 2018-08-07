@@ -1,0 +1,4 @@
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Debug\NimChatRoom.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Debug\NimChatRoom.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x64\Debug\NimChatRoom.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x64\Debug\NimChatRoom.pdb

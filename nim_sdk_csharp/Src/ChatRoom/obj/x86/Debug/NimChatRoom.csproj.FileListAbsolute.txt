@@ -1,0 +1,10 @@
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimChatRoom.dll
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimChatRoom.pdb
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x86\Debug\NimChatRoom.dll
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x86\Debug\NimChatRoom.pdb
+D:\音视频\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x86\Debug\NimChatRoom.csprojResolveAssemblyReference.cache
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x86\Debug\NimChatRoom.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x86\Debug\NimChatRoom.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x86\Debug\NimChatRoom.csprojResolveAssemblyReference.cache
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x86\Debug\NimChatRoom.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\ChatRoom\obj\x86\Debug\NimChatRoom.pdb

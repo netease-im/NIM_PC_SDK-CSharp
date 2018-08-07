@@ -2,7 +2,7 @@
   * @brief NIM VChat提供的音视频接口定义，
   * @copyright (c) 2015, NetEase Inc. All rights reserved
   * @author gq
-  * @modify lee
+  * @modify leewp
   * @date 2015/12/8
   */
 
@@ -86,6 +86,19 @@ namespace NIM
 		/// 通知直播推流的服务器状态
 		/// </summary>
 		kNIMVideoChatSessionTypeLiveState = 17,
+#else
+        /// <summary>
+        /// 通话中伴音事件状态通知,Untiy aos,ios有效
+        /// </summary>
+        kNIMVideoChatSessionTypeAuMixingEventNotify = 30,
+        /// <summary>
+        /// 客户端网络类型发生了变化,Untiy aos,ios有效
+        /// </summary>
+        kNIMVideoChatSessionTypeNetConnectionTypeChangedNotify = 32,
+        /// <summary>
+        /// 语音静音状态,Untiy aos,ios有效
+        /// </summary>
+        kNIMVideoChatSessionTypeAudioMuteStatus = 34,
 #endif
     };
 
@@ -161,10 +174,12 @@ namespace NIM
 		/// 语音通话模式
 		/// </summary>
 		kNIMVideoChatModeAudio = 1,
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
 		/// <summary>
 		/// 视频通话模式
 		/// </summary>
 		kNIMVideoChatModeVideo = 2,
+#endif
 	};
 
 	/// <summary>
@@ -829,7 +844,7 @@ namespace NIM
 		/// </summary>
 		[Newtonsoft.Json.JsonProperty("record")]
 		public int ServerAudioRecord { get; set; }
-
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
 		/// <summary>
 		/// 是否需要录制视频数据 >0表示是 （需要服务器配置支持，本地录制直接调用接口函数）
 		/// </summary>
@@ -861,18 +876,12 @@ namespace NIM
 		public int FrameRate { get; set; }
 
         /// <summary>
-        /// 是否使用语音高清模式 >0表示是（默认关闭）3.3.0 之前的版本无法加入已经开启高清语音的多人会议
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("high_rate")]
-        public int AudioHighRate { get; set; }
-
-        /// <summary>
         /// 音频模式选择，非默认时kNIMVChatAudioHighRate无效
         /// </summary>
         [Newtonsoft.Json.JsonProperty("audio_mode")]
         public int AudioMode { get; set; }
 
-        /// <summary>
+                /// <summary>
         /// 直播推流地址(加入多人时有效)，非空代表主播旁路直播， kNIMVChatBypassRtmp决定是否开始推流
         /// </summary>
         [Newtonsoft.Json.JsonProperty("rtmp_url")]
@@ -901,6 +910,31 @@ namespace NIM
         /// </summary>
         [Newtonsoft.Json.JsonProperty(PropertyName = "custom_layout", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Layout { get; set; }
+
+        /// <summary>
+        /// 无效已经默认支持
+        /// 是否支持webrtc互通,1表示是，0表示否。默认否
+        /// </summary>
+        // [Newtonsoft.Json.JsonProperty("webrtc")]
+        // public int Webrtc { get; set; }
+
+        /// <summary>
+        /// 使用的视频编码策略NIMVChatVideoEncodeMode， 默认kNIMVChatVEModeNormal
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("v_encode_mode")]
+        public int VEncodeMode { get; set; }
+#else
+        /// <summary>
+        /// 语音音量信息是否需要上报 >0表示是
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("audio_report_volume")]
+        public int AudioReportVolume { get; set; }
+#endif
+        /// <summary>
+        /// 是否使用语音高清模式 >0表示是（默认关闭）3.3.0 之前的版本无法加入已经开启高清语音的多人会议
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("high_rate")]
+        public int AudioHighRate { get; set; }
 
         /// <summary>
         /// 是否需要推送 >0表示是 默认是
@@ -938,21 +972,6 @@ namespace NIM
 		[Newtonsoft.Json.JsonProperty("keepcalling")]
 		public int KeepCalling { get; set; }
 
-
-
-        /// <summary>
-        /// 无效已经默认支持
-        /// 是否支持webrtc互通,1表示是，0表示否。默认否
-        /// </summary>
-        // [Newtonsoft.Json.JsonProperty("webrtc")]
-        // public int Webrtc { get; set; }
-
-        /// <summary>
-        /// 使用的视频编码策略NIMVChatVideoEncodeMode， 默认kNIMVChatVEModeNormal
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("v_encode_mode")]
-        public int VEncodeMode { get; set; }
-
 		public NIMVChatInfo()
 		{
             Uids = new List<string>();
@@ -960,26 +979,30 @@ namespace NIM
             CustomAudio = 0;
 			CustomVideo = 0;
 			ServerAudioRecord = 0;
-			ServerVideoRecord = 0;
-            ServerVideoRecord = 0;
-            MaxVideoRate = 0;
-            VideoQuality = 0;
-            FrameRate = 0;
             AudioHighRate = 0;
-			RtmpUrl = "";
-			BypassRtmp = 0;
-            RtmpRecord = 0;
-            SplitMode = 0;
-            Layout = null;
             PushEnable = 1;
 			NeedBadge = 1;
 			NeedNick = 1;
 			PayLoad = "";
 			Sound = "";
 			KeepCalling = 1;
-		
-			//Webrtc = 0;
+
+            //Webrtc = 0;
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+            ServerVideoRecord = 0;
+            ServerVideoRecord = 0;
+            MaxVideoRate = 0;
+            VideoQuality = 0;
+            FrameRate = 0;
+            RtmpUrl = "";
+            BypassRtmp = 0;
+            RtmpRecord = 0;
+            SplitMode = 0;
+            Layout = null;
             VEncodeMode = 0;
+#else
+            AudioReportVolume = 0;//默认关闭
+#endif
 
         }
 	}
@@ -1366,6 +1389,7 @@ namespace NIM
         [Newtonsoft.Json.JsonProperty("custom_audio")]
         public int CustomAudio { get; set; }
 
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
         /// <summary>
         /// 是否用自定义视频数据（i420）
         /// </summary>
@@ -1409,12 +1433,6 @@ namespace NIM
         public int FrameRate { get; set; }
 
         /// <summary>
-        /// 是否使用语音高清模式 >0表示是（默认关闭）3.3.0 之前的版本无法加入已经开启高清语音的多人会议
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("high_rate")]
-        public int AudioHighRate { get; set; }
-
-        /// <summary>
         /// 音频模式选择，非默认时kNIMVChatAudioHighRate无效
         /// </summary>
         [Newtonsoft.Json.JsonProperty("audio_mode")]
@@ -1456,25 +1474,41 @@ namespace NIM
         /// </summary>
         [Newtonsoft.Json.JsonProperty("v_encode_mode")]
         public int VEncodeMode { get; set; }
+#else
+        /// <summary>
+        /// 语音音量信息是否需要上报 >0表示是
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("audio_report_volume")]
+        public int AudioReportVolume { get; set; }
+#endif
+        /// <summary>
+        /// 是否使用语音高清模式 >0表示是（默认关闭）3.3.0 之前的版本无法加入已经开启高清语音的多人会议
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("high_rate")]
+        public int AudioHighRate { get; set; }
 
         public NIMJoinRoomJsonEx()
 		{
             //Layout.MainHeight = 0;
             SessionId = "";
+            CustomAudio = 0;
+            AudioHighRate = 0;
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
             CustomVideo = 0;
-			CustomAudio = 0;
 			VideoQuality = 0;
             ServerAudioRecord = 0;
             ServerVideoRecord = 0;
             ServerSingleRecord = 0;
             MaxVideoRate = 0;
-            AudioHighRate = 0;
             AudioMode = 0;
             RtmpUrl = "";
             RtmpRecord = 0;
             BypassRtmp = 0;
             SplitMode = 0;
             VEncodeMode = 0;
+#else
+            AudioReportVolume = 0;//默认关闭
+#endif
         }
 	}
 

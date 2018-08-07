@@ -4,6 +4,26 @@ using NimUtility;
 
 namespace NIM.Nos
 {
+    public enum NIMNosInitConfigResultType
+    {
+        /// <summary>
+        ///  自定义tag数量超过最大数量
+        /// </summary>
+        kNIMNosInitConfResTypeTagCountOF = 0,
+        /// <summary>
+        /// 所有tag初始成功
+        /// </summary>
+        kNIMNosInitConfResTypeSuccess,
+        /// <summary>
+        /// 部分tag初始化成功，失败的tag及错误码可以解析json_result来取得
+        /// </summary>
+        kNIMNosInitConfResTypePartSuccessful,
+        /// <summary>
+        /// 所有tag初始化失败
+        /// </summary>
+        kNIMNosInitConfResTypeFailure,
+    };
+
     /// <summary>
     ///     下载结果回调
     /// </summary>
@@ -78,11 +98,23 @@ namespace NIM.Nos
         [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))]string json_extension,
        IntPtr user_data);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void InitConfigCb(NIMNosInitConfigResultType type,
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))]string json_result,
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))]string json_extension,
+        IntPtr user_data);
+
     internal static class NosNativeMethods
     {
         //引用C中的方法（考虑到不同平台下的C接口引用方式差异，如[DllImport("__Internal")]，[DllImport("nimapi")]等） 
 
         #region NIM C SDK native methods
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_init_config", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_nos_init_config(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))] string json_tags, 
+            InitConfigCb cb, 
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))] string json_extension, 
+            IntPtr user_data);
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_reg_download_cb", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nim_nos_reg_download_cb(DownloadCb cb, IntPtr user_data);
@@ -100,6 +132,14 @@ namespace NIM.Nos
         internal static extern void nim_nos_upload(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))] string local_file,
             UploadCb res_cb, IntPtr res_user_data, UploadPrgCb prg_cb, IntPtr prg_user_data);
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_upload2", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_nos_upload2([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))] string local_file,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))] string tag,
+            UploadCb res_cb, 
+            IntPtr res_user_data, 
+            UploadPrgCb prg_cb, 
+            IntPtr prg_user_data);
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_download", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nim_nos_download(
@@ -133,6 +173,15 @@ namespace NIM.Nos
             UploadSpeedCb speed_cb, IntPtr speed_user_data,
             UploadInfoCb info_cb, IntPtr info_user_data);
 
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_upload_ex2", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_nos_upload_ex2(
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))]string local_file,
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))]string tag,
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaler))]string json_extension,
+        UploadCb res_cb, IntPtr res_user_data,
+        UploadPrgCb prg_cb, IntPtr prg_user_data,
+        UploadSpeedCb speed_cb, IntPtr speed_user_data,
+        UploadInfoCb info_cb, IntPtr info_user_data);
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_reg_upload_cb", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nim_nos_reg_upload_cb(UploadCb cb, IntPtr user_data);

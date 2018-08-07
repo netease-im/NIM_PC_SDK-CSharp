@@ -1,0 +1,7 @@
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Release\NimCore.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Release\NimCore.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Core\obj\Release\NimCore.csprojResolveAssemblyReference.cache
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Core\obj\Release\NIM.Properties.Resources.resources
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Core\obj\Release\NimCore.csproj.GenerateResource.Cache
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Core\obj\Release\NimCore.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Core\obj\Release\NimCore.pdb

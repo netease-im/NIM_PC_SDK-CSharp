@@ -8,6 +8,7 @@
 using System;
 using NimUtility;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace NIM.Nos
 {
@@ -32,6 +33,11 @@ namespace NIM.Nos
         public string ResponseMsg { get; set; }
     }
 
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+    public delegate void InitConfigHandler(NIMNosInitConfigResultType type, InitConfigResultParams json_result, string json_extension);
+  
+   
+#endif
     /// <summary>
     ///     下载结果回调
     /// </summary>
@@ -116,6 +122,18 @@ namespace NIM.Nos
 
         private static readonly UploadPrgCb UploadPrgCb = UploadProgressCallback;
 
+
+ #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+        private static readonly InitConfigCb InitConfigCbFunc = InitConfigCallback;
+        private static void InitConfigCallback(NIMNosInitConfigResultType type, string json_result, string json_extension, IntPtr user_data)
+        {
+            InitConfigResultParams result_params = InitConfigResultParams.Deserialize(json_result);
+            user_data.Invoke<InitConfigHandler>(type, result_params, json_extension);
+        }
+
+#endif
+
+
         /// <summary>
         ///     注册下载回调，通过注册回调获得http下载结果通知，刷新资源
         /// </summary>
@@ -191,6 +209,8 @@ namespace NIM.Nos
             NosNativeMethods.nim_nos_upload(localFile, UploadCb2, ptr1, UploadPrgCb, ptr2);
         }
 
+
+
         /// <summary>
         ///     下载资源
         /// </summary>
@@ -214,6 +234,8 @@ namespace NIM.Nos
         {
             userData.Invoke<DownloadResultHandler>(rescode, filePath, callId, resId);
         }
+
+
 
         [MonoPInvokeCallback(typeof(DownloadPrgCb))]
         private static void DownloadProgressCallback(long curSize, long fileSize, string jsonExtension, IntPtr userData)
@@ -367,6 +389,40 @@ namespace NIM.Nos
         }
 
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+        /// <summary>
+        /// Nos模块初始化接口，对上传资源时使用的各场景资源生命周期进行初始化，开发者最多可自定义10个场景，并指定场景资源的生命周期，并可以对缺省场景（kNIMNosDefaultTagResource、kNIMNosDefaultTagIM）进行覆盖（重新指定生命周期）
+        /// </summary>
+        /// <param name="json_tags">tags 标签（json形式）</param>
+        /// <param name="handler">回调函数</param>
+        /// <param name="json_extension">拓展参数</param>
+        public static void InitConfig(List<InitConfigParams> tags, InitConfigHandler handler, string json_extension=null)
+        {
+            var ptr = DelegateConverter.ConvertToIntPtr(handler);
+            string json_tags = "";
+            if(tags!=null)
+            {
+                json_tags = JsonConvert.SerializeObject(tags);
+            }
+            NosNativeMethods.nim_nos_init_config(json_tags, InitConfigCbFunc, json_extension, ptr);
+        }
+
+        /// <summary>
+        /// 上传资源
+        /// </summary>
+        /// <param name="localFile">本地文件的完整路径</param>
+        /// <param name="tag">场景标签，主要用于确定文件的保存时间</param>
+        /// <param name="resHandler">上传的结果回调</param>
+        /// <param name="prgHandler">上传进度的回调</param>
+        public static void Upload2(string localFile, string tag, UploadResultHandler2 resHandler, ProgressResultHandler prgHandler, object userData = null)
+        {
+            ProgressData data = new ProgressData();
+            data.FilePath = localFile;
+            data.UserData = userData;
+            ProgressPair pair = new ProgressPair(data, prgHandler);
+            var ptr1 = DelegateConverter.ConvertToIntPtr(resHandler);
+            var ptr2 = DelegateConverter.ConvertToIntPtr(pair);
+            NosNativeMethods.nim_nos_upload2(localFile, tag, UploadCb2, ptr1, UploadPrgCb, ptr2);
+        }
 
         /// <summary>
         /// 停止上传资源(只能用于调用了nim_nos_upload_ex接口的上传任务)
@@ -420,6 +476,42 @@ namespace NIM.Nos
                 UploadSpeedCallbackEx, speedPair.ToIntPtr(),
                 UploadInfoCallbackEx, infoPair.ToIntPtr());
         }
+
+        /// <summary>
+        /// 上传资源(扩展)
+        /// </summary>
+        /// <param name="localFile">本地文件的完整路径</param>
+        /// <param name="tag">场景标签，主要用于确定文件的保存时间</param>
+        /// <param name="param">参数配置</param>
+        /// <param name="resCb">上传的回调函数</param>
+        /// <param name="resData">APP的自定义用户数据，SDK只负责传回给回调函数resCb，不做任何处理！</param>
+        /// <param name="prgCb">上传进度的回调函数</param>
+        /// <param name="prgData">APP的自定义用户数据，SDK只负责传回给回调函数prgCb，不做任何处理！</param>
+        /// <param name="speedCb">上传速度的回调函数</param>
+        /// <param name="speedData">peed_user_data APP的自定义用户数据，SDK只负责传回给回调函数speedCb，不做任何处理！</param>
+        /// <param name="infoCb">info_cb 返回最终上传信息的回调函数</param>
+        /// <param name="infoData"> APP的自定义用户数据，SDK只负责传回给回调函数infoCb，不做任何处理！</param>
+        public static void UploadEx2(string localFile,
+            string tag,
+            HttpExtendedParameters param,
+            UploadCb resCb, IntPtr resData,
+            UploadPrgCb prgCb, IntPtr prgData,
+            UploadSpeedCb speedCb, IntPtr speedData,
+            UploadInfoCb infoCb, IntPtr infoData)
+        {
+            CallbackDataPair resPair = new CallbackDataPair(resCb, resData);
+            CallbackDataPair prgPair = new CallbackDataPair(prgCb, prgData);
+            CallbackDataPair speedPair = new CallbackDataPair(speedCb, speedData);
+            CallbackDataPair infoPair = new CallbackDataPair(infoCb, infoData);
+
+            NosNativeMethods.nim_nos_upload_ex2(localFile,tag,
+                param != null ? param.Serialize() : string.Empty,
+                UploadCallbackEx, resPair.ToIntPtr(),
+                UploadPrgCallbackEx, prgPair.ToIntPtr(),
+                UploadSpeedCallbackEx, speedPair.ToIntPtr(),
+                UploadInfoCallbackEx, infoPair.ToIntPtr());
+        }
+
 
         /// <summary>
         /// 获取资源(扩展)
@@ -589,6 +681,11 @@ namespace NIM.Nos
         [JsonProperty("doc_trans_ext")]
         public string DocTransitionExt { get; set; }
 
+        /// <summary>
+        /// 上传文件时使用的场景标签(可参见nos删除策略)
+        /// </summary>
+        [JsonProperty("upload_tag")]
+        public string UploadTag { get; set; }
         public DocTransitionParams()
         {
             UploadType = NIMNosUploadType.kNIMNosUploadTypeDocTrans;
@@ -597,6 +694,44 @@ namespace NIM.Nos
         /** @name NOS扩展上传回调参数json_extension, Json key for upload cb */
         //static const char* kNIMNosResId = "res_id";     /**< string 上传文件的id，如果是文档转换则为服务器的文档id */
         /** @}*/ //NOS扩展上传回调参数json_extension, Json key for upload cb
+    }
+
+    public class InitConfigParams : NimJsonObject<InitConfigParams>
+    {
+        [JsonProperty("nim_nos_tag_name")]
+        public string TagName { get; set; }
+
+        [JsonProperty("nim_nos_tag_survival_time")]
+        public Int32 TagSurvivalTime { get; set; }
+    }
+
+
+    public class InitConfigResultParams: NimJsonObject<InitConfigResultParams>
+    {
+        public class InitConfigError: NimJsonObject<InitConfigError>
+        {
+            [JsonProperty("nim_nos_tag_name")]
+            public string TagName { get; set; }
+
+            [JsonProperty("nim_nos_init_config_errcode")]
+            public int ConfigErrcode { get; set; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("nim_nos_init_config_succeed")]
+        public List<string> ConfigSucceed { get; set; }
+
+        [JsonProperty("nim_nos_init_config_failure")]
+        public List<InitConfigError> ConfigFailure { get; set; }
+
+        [JsonProperty("nim_nos_init_config_ignore")]
+        public List<string> ConfigIgnore { get; set; }
+
+
+        [JsonProperty("nim_nos_init_config_retcode")]
+        public int ConfigRetcode { get; set; }
     }
 #endif
 }

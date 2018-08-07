@@ -1,0 +1,6 @@
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\NimAudio.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\NimAudio.pdb
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\nim_audio_csharp.XML
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Audio\obj\x64\Release\NimAudio.csprojResolveAssemblyReference.cache
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Audio\obj\x64\Release\NimAudio.dll
+D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Audio\obj\x64\Release\NimAudio.pdb

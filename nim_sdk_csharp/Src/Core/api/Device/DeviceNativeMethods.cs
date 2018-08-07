@@ -94,8 +94,9 @@ namespace NIM
 		internal static extern void nim_vchat_set_audio_data_cb_ex(int type,
 			[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension, nim_vchat_audio_data_cb_func_ex cb, IntPtr user_data);
 
-        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_audio_howling_suppression", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void nim_vchat_set_audio_howling_suppression(bool work);
+
+//         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_audio_howling_suppression", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+//         internal static extern void nim_vchat_set_audio_howling_suppression(bool work);
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_accompanying_sound", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool nim_vchat_accompanying_sound( Byte id,UInt64 time,IntPtr data,UInt32 size,UInt32 rate,UInt32 channels, 
@@ -133,8 +134,8 @@ namespace NIM
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_stop_audio_mixing", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool nim_vchat_stop_audio_mixing();
 
-        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_play_captured_audio_volume", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool nim_vchat_set_play_captured_audio_volume(float volume);
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_earphone_monitor_audio_volume", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_vchat_set_earphone_monitor_audio_volume(float volume);
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_vchat_set_audio_mixing_volume", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool nim_vchat_set_audio_mixing_volume(float volume);

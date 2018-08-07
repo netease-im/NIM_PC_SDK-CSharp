@@ -2,7 +2,7 @@
   * @brief NIM VChat提供的音视频相关接口，相关功能调用前需要先Init()
   * @copyright (c) 2015, NetEase Inc. All rights reserved
   * @author gq
-  * @modify lee
+  * @modify leewp
   * @date 2015/12/8
   */
 
@@ -87,7 +87,20 @@ namespace NIM
 		/// 直播状态通知
 		/// </summary>
 		public OnSessionLiveStateInfoNotifyHandler onSessionLiveStateNotify;
-       
+#else 
+        /// <summary>
+        /// 通话中伴音事件状态通知 Unity android ios有效
+        /// </summary>
+        public onSessionHandler onSessionAuMixingEventNotify;
+        /// <summary>
+        /// 客户端网络类型发生了变化 Unity android ios有效
+        /// </summary>
+        public onSessionHandler onSessionNetConnectionTypeChangedNotify;
+        /// <summary>
+        /// 语音静音状态 Unity android ios有效
+        /// </summary>
+        public onSessionPeopleStatusHandler onSessionAudioMuteStatus;
+
 #endif
     }
 
@@ -302,6 +315,35 @@ namespace NIM
 						}
 					}
 					break;
+#else
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeAuMixingEventNotify:
+                        {
+                            if (session_status.onSessionAuMixingEventNotify != null)
+                            {
+                                session_status.onSessionAuMixingEventNotify(channel_id, code);
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeAudioMuteStatus:
+                        {
+                            if (session_status.onSessionAudioMuteStatus != null)
+                            {
+                                info = NIMVChatSessionInfo.Deserialize(json_extension);
+                                if (info != null)
+                                {
+                                    session_status.onSessionAudioMuteStatus(channel_id,info.Uid,code);
+                                }
+                            }
+                        }
+                        break;
+                    case NIMVideoChatSessionType.kNIMVideoChatSessionTypeNetConnectionTypeChangedNotify:
+                        {
+                            if (session_status.onSessionNetConnectionTypeChangedNotify != null)
+                            {
+                                session_status.onSessionNetConnectionTypeChangedNotify(channel_id, code);
+                            }
+                        }
+                        break;
 #endif
                 }
             }
@@ -443,8 +485,8 @@ namespace NIM
             if (info == null)
 				info = new NIMVChatInfo();
             string json_extension = info.Serialize();
-            string debug_info = string.Format("callee ack.cid:{0},accept:{1},info:{2}", channel_id, accept, json_extension);
-            System.Diagnostics.Debug.WriteLine(debug_info);
+            //string debug_info = string.Format("callee ack.cid:{0},accept:{1},info:{2}", channel_id, accept, json_extension);
+            //System.Diagnostics.Debug.WriteLine(debug_info);
             return VChatNativeMethods.nim_vchat_callee_ack(channel_id, accept, json_extension, IntPtr.Zero);
         }
 
@@ -557,11 +599,12 @@ namespace NIM
             if (joinRoomInfo == null)
             {
                 joinRoomInfo = new NIMJoinRoomJsonEx();
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
                 CustomLayout layout=new CustomLayout();
                 layout.Hostarea = new HostArea();
                 layout.Background = new BackGround();
                 joinRoomInfo.Layout = layout.Serialize();
-
+#endif
             }
             string	json_extension = joinRoomInfo.Serialize();
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);

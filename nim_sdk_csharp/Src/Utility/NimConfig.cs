@@ -137,7 +137,7 @@ namespace NimUtility
         /// <summary>
         /// 是否启用HTTPS协议，默认为false
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("https_enabled")]
+        [Newtonsoft.Json.JsonProperty("use_https")]
         public bool UseHttps { get; set; }
 
         /// <summary>
@@ -163,6 +163,48 @@ namespace NimUtility
         /// </summary>
         [Newtonsoft.Json.JsonProperty("team_msg_ack")]
         public bool TeamMsgAckEnabled { get; set; }
+
+        /// <summary>
+        /// 是否开启缓存式“已接收回执”发送，程序可能收到大量消息以至触发频控时可以考虑开启此开关 缺省 false 关闭
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("caching_markread_enabled")]
+        public bool CachingMarkreadEnabled { get; set; }
+
+        /// <summary>
+        /// caching_markread_ == true 时有效 缓存时间 单位ms 缺省 1000
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("caching_markread_time")]
+        public int CachingMarkreadTime { get; set; }
+
+        /// <summary>
+        /// caching_markread_ == true 时有效 缓存的最大消息条数  缺省 10
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("caching_markread_count")]
+        public int CachingMarkreadCount { get; set; }
+
+        /// <summary>
+        /// string 用户数据文件备份（本地）目录，缺省在数据文件所在目录创建一个db_file.back目录
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("user_datafile_localbackup_folder")]
+        public string FileLocalBackupFolder { get; set; }
+
+        /// <summary>
+        /// 是否开启用户数据备份(本地)功能  缺省true
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("enable_user_datafile_backup")]
+        public bool EnableUserDataFileLocalBackup { get; set; }
+
+        /// <summary>
+        ///  是否开启用户数据恢复(本地)功能  缺省false
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("enable_user_datafile_restore")]
+        public bool EnableUserDataFileLocalRestore { get; set; }
+
+        /// <summary>
+        /// 是否使用缺省的用户数据恢复(本地)方案  缺省false enable_user_datafile_restore_ == true 生效
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("enable_user_datafile_defrestoreproc")]
+        public bool EnableUserDataFileDefRestoreProc { get; set; }
 #endif
 
 
@@ -181,6 +223,13 @@ namespace NimUtility
             CustomTimeout = 30;
             UseHttps = false;
             AnimatedImageEnabled = false;
+
+            CachingMarkreadEnabled = false;
+            CachingMarkreadTime = 1000;
+            CachingMarkreadCount = 10;
+            EnableUserDataFileLocalBackup = true;
+            EnableUserDataFileLocalRestore = false;
+            EnableUserDataFileDefRestoreProc = false;
 #endif
         }
     }
@@ -260,6 +309,7 @@ namespace NimUtility
         [Newtonsoft.Json.JsonProperty("is_upload_statistics_data")]
         public bool UploadStatisticsData { get; set; }
 
+    
 #else
         /// <summary>
         /// lbs地址，如果选择使用私有服务器，则必填
@@ -312,6 +362,7 @@ namespace NimUtility
         public SdkPrivateServerSetting()
         {
             RsaVersion = 0;
+
         }
     }
 
