@@ -374,7 +374,11 @@ namespace NIM
         /// <summary>
         /// 通道被关闭
         /// </summary>
-        kNIMVChatLocalChannelClosed = 11004
+        kNIMVChatLocalChannelClosed = 11004,
+        /// <summary>
+        /// 账号被踢
+        /// </summary>
+        kNIMVChatLocalChannelKicked = 11005
     };
 
 	/// <summary>
@@ -811,6 +815,25 @@ namespace NIM
     }
 
     /// <summary>
+    /// 服务器录制模式，用于指定本人数据录制选择 
+    /// </summary>
+    public enum NIMVChatServRecordType
+    {
+        /// <summary>
+        /// 服务器录制混录并带单人文件
+        /// </summary>
+        kNIMVChatServRecordMixedSingle = 0,
+        /// <summary>
+        /// 服务器录制只混录
+        /// </summary>
+        kNIMVChatServRecordMixed = 1,
+        /// <summary>
+        /// 服务器录制只录本人单人文件
+        /// </summary>
+        kNIMVChatServRecordSingle = 2, 
+    }
+
+    /// <summary>
     /// 发起和接受通话时的参数
     /// </summary>
     public class NIMVChatInfo : NimUtility.NimJsonObject<NIMVChatInfo>
@@ -852,10 +875,16 @@ namespace NIM
 		public int ServerVideoRecord { get; set; }
 
         /// <summary>
-        /// 是否需要录制多人模式下的本人数据 >0表示是 （需要服务器配置支持，并且开ServerAudioRecord，ServerVideoRecord其中一个）
+        /// 服务器录制模式NIMVChatServRecordType，默认为0 （需要服务器配置支持，并且开kNIMVChatRecord，kNIMVChatSingleRecord其中一个）
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("single_record")]
+        [Newtonsoft.Json.JsonProperty("record_type")]
         public int ServerSingleRecord { get; set; }
+
+        /// <summary>
+        /// 服务器混录时指定本人主画面，默认为0, 非0表示打开（需要服务器配置支持，及录制模式打开混录，并且为多人中的第一个主画面配置
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("r_host_speaker")]
+        public int ServerHostSpeaker { get; set; }
 
         /// <summary>
         ///  视频发送编码码率 [100000,600000]有效
@@ -1000,6 +1029,7 @@ namespace NIM
             SplitMode = 0;
             Layout = null;
             VEncodeMode = 0;
+            ServerHostSpeaker = 0;
 #else
             AudioReportVolume = 0;//默认关闭
 #endif
@@ -1409,10 +1439,16 @@ namespace NIM
         public int ServerVideoRecord { get; set; }
 
         /// <summary>
-        /// 是否需要录制多人模式下的本人数据 >0表示是 （需要服务器配置支持，并且开ServerAudioRecord，ServerVideoRecord其中一个）
+        /// 服务器录制模式NIMVChatServRecordType，默认为0 （需要服务器配置支持，并且开kNIMVChatRecord，kNIMVChatSingleRecord其中一个）
         /// </summary>
-        [Newtonsoft.Json.JsonProperty("single_record")]
+        [Newtonsoft.Json.JsonProperty("record_type")]
         public int ServerSingleRecord { get; set; }
+
+        /// <summary>
+        /// 服务器混录时指定本人主画面，默认为0, 非0表示打开（需要服务器配置支持，及录制模式打开混录，并且为多人中的第一个主画面配置
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("r_host_speaker")]
+        public int ServerHostSpeaker { get; set; }
 
         /// <summary>
         ///  视频发送编码码率 [100000,600000]有效
@@ -1506,6 +1542,7 @@ namespace NIM
             BypassRtmp = 0;
             SplitMode = 0;
             VEncodeMode = 0;
+            ServerHostSpeaker = 0;
 #else
             AudioReportVolume = 0;//默认关闭
 #endif
