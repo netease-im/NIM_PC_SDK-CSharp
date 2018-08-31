@@ -193,24 +193,6 @@ namespace NIM.Nos
         }
 
         /// <summary>
-        /// 上传资源
-        /// </summary>
-        /// <param name="localFile">本地文件的完整路径</param>
-        /// <param name="tag">场景标签，主要用于确定文件的保存时间</param>
-        /// <param name="resHandler">上传的结果回调</param>
-        /// <param name="prgHandler">上传进度的回调</param>
-        public static void Upload2(string localFile, string tag, UploadResultHandler resHandler, ProgressResultHandler prgHandler, object userData = null)
-        {
-            ProgressData data = new ProgressData();
-            data.FilePath = localFile;
-            data.UserData = userData;
-            ProgressPair pair = new ProgressPair(data, prgHandler);
-            var ptr1 = DelegateConverter.ConvertToIntPtr(resHandler);
-            var ptr2 = DelegateConverter.ConvertToIntPtr(pair);
-            NosNativeMethods.nim_nos_upload2(localFile, tag, UploadCb, ptr1, UploadPrgCb, ptr2);
-        }
-
-        /// <summary>
         ///     上传资源
         /// </summary>
         /// <param name="localFile">本地文件的完整路径</param>
@@ -598,70 +580,6 @@ namespace NIM.Nos
         }
 
 #endif
-        private static InitConfigCb NosInitCallback = OnNosInitCompleted;
-
-        public delegate void NIMNosInitResultCallback(NIMNosInitResult result);
-
-        private static void OnNosInitCompleted(NIMNosInitConfigResultType rescode, string json_result, string json_extension, IntPtr user_data)
-        {
-            NIMNosInitResult initResult = NIMNosInitResult.Deserialize(json_result);
-            DelegateConverter.InvokeOnce<NIMNosInitResultCallback>(user_data, initResult);
-        }
-
-        public static void InitNosTags(List<NIMNosTagInfo> tags, NIMNosInitResultCallback cb)
-        {
-            var json = NimUtility.Json.JsonParser.Serialize(tags);
-            var ptr = DelegateConverter.ConvertToIntPtr(cb);
-            NosNativeMethods.nim_nos_init_config(json, NosInitCallback, null, ptr);
-        }
-    }
-
-    public class NIMNosInitResult:NimJsonObject<NIMNosInitResult>
-    {
-        /// <summary>
-        /// 初始化成功了的tag
-        /// </summary>
-        [JsonProperty("nim_nos_init_config_succeed")]
-        public List<string> Succeed { get; set; }
-
-        /// <summary>
-        /// 初始化失败了的tag
-        /// </summary>
-        [JsonProperty("nim_nos_init_config_failure")]
-        public List<string> Failure { get; set; }
-
-        /// <summary>
-        /// 因为指定的survival_time 相同而被忽略了的tag
-        /// </summary>
-        [JsonProperty("nim_nos_init_config_ignore")]
-        public List<string> Ignore { get; set; }
-
-        /// <summary>
-        /// 初始化tag失败时的错误码
-        /// </summary>
-        [JsonProperty("kNIMNosInitConfigErrcode")]
-        public int Error { get; set; }
-
-        /// <summary>
-        /// 初始化结果
-        /// </summary>
-        [JsonProperty("nim_nos_init_config_retcode")]
-        public NIMNosInitConfigResultType Result { get; set; }
-    }
-
-    public class NIMNosTagInfo:NimJsonObject<NIMNosTagInfo>
-    {
-        /// <summary>
-        /// tag的名称
-        /// </summary>
-        [JsonProperty("nim_nos_tag_name")]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// 资源所对应的tag生命周期
-        /// </summary>
-        [JsonProperty("nim_nos_tag_survival_time")]
-        public int ExpirSeconds { get; set; }
     }
 
     public enum NIMNosUploadType

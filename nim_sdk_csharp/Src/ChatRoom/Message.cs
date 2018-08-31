@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 
 namespace NIMChatRoom
 {
@@ -207,15 +205,14 @@ namespace NIMChatRoom
         [JsonProperty(PropertyName = "anti_spam_content")]
         public string AntiSpamContent { get; set; }
 
-		/// <summary>
-		/// (可选)该消息是否存储云端历史,可选，0:不是,1:是, 默认1
-		/// </summary>
-		[JsonProperty(PropertyName = "history_save")]
-		public int SaveHistory { get; set; }
-
 
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
 
+        /// <summary>
+        /// (可选)该消息是否存储云端历史,可选，0:不是,1:是, 默认1
+        /// </summary>
+        [JsonProperty(PropertyName = "history_save")]
+        public int SaveHistory { get; set; }
 
         /// <summary>
         /// (可选)文本消息内容（聊天室机器人文本消息）
@@ -240,34 +237,18 @@ namespace NIMChatRoom
         public Message()
         {
             _antiSpamEnabled = 0;
-			SaveHistory = 1;
+#if NIMAPI_UNDER_WIN_DESKTOP_ONLY
+            SaveHistory = 1;
+#endif
         }
     }
 
     internal class QueryMessageHistoryParam : NimUtility.NimJsonObject<QueryMessageHistoryParam>
     {
-        /// <summary>
-        /// 开始时间,单位毫秒
-        /// </summary>
         [JsonProperty("start")]
         public long StartTime { get; set; }
 
-        /// <summary>
-        /// 本次返回的消息数量
-        /// </summary>
         [JsonProperty("limit")]
         public int Count { get; set; }
-
-        /// <summary>
-        /// true:按时间正序起查，正序排列,false:按时间逆序起查，逆序排列
-        /// </summary>
-		[JsonProperty("reverse")]
-		public bool Reverse { get; set;}
-
-        /// <summary>
-        /// 要查询的消息类型
-        /// </summary>
-		[JsonProperty("msgtypes")]
-		public List<NIMChatRoomMsgType> MsgTypes { get; set;} 
     }
 }

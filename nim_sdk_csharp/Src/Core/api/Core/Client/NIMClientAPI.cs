@@ -248,7 +248,7 @@ namespace NIM
         }
 
         /// <summary>
-        /// NIM客户端注销/退出，异步方法，回调函数中报告执行结果
+        /// NIM客户端注销/退出
         /// </summary>
         /// <param name="logoutType">Logout操作类型</param>
         /// <param name="delegate">注销/退出的回调函数.</param>
@@ -256,21 +256,6 @@ namespace NIM
         {
             IntPtr ptr = NimUtility.DelegateConverter.ConvertToIntPtr(@delegate);
             ClientNativeMethods.nim_client_logout(logoutType, null, LogoutResultCallback, ptr);
-        }
-
-        /// <summary>
-        /// NIM客户端注销/退出，同步方法
-        /// </summary>
-        /// <param name="logoutType"></param>
-        /// <param name="waitSeconds"></param>
-        public static void Logout(NIMLogoutType logoutType,int waitSeconds = 10)
-        {
-            System.Threading.Semaphore semaphore = new System.Threading.Semaphore(0, 1);
-            NIM.ClientAPI.Logout(logoutType, (r) =>
-            {
-                semaphore.Release();
-            });
-            semaphore.WaitOne(TimeSpan.FromSeconds(waitSeconds));
         }
 
         /// <summary>

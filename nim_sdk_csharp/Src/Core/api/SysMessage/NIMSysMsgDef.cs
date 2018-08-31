@@ -94,13 +94,4 @@ namespace NIM.SysMessage
         /// </summary>
         kNIMSysMsgTypeUnknown = 1000,
     };
-
-    public class FriendRequestVerify
-    {
-        /// <summary>
-        /// 接收到的加好友请求系统消息中验证类型
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("vt")]
-        public NIM.Friend.NIMVerifyType VT { get; set; }
-    }
 }

@@ -852,21 +852,7 @@ namespace NIM
         /// <returns> bool true 静音，false 不静音</returns>
         public static bool NIMVChatAudioPlayMuteEnabled()
         {
-            return VChatNativeMethods.nim_vchat_audio_play_mute_enabled();
-        }
-
-        /// <summary>
-        ///  设置SDK音视频的网络代理，暂时只支持socks5代理，全局代理接口也能设置音视频的代理，两接口没有优先级区别。
-        ///  不需要代理时，type设置为kNIMProxyNone，其余参数都传空字符串（端口设为0）。有些代理不需要用户名和密码，相应参数也传空字符串。
-        /// </summary>
-        /// <param name="type">代理类型，见NIMProxyType定义,其中音视频和白板暂时只支持kNIMProxySocks5代理</param>
-        /// <param name="host">代理地址</param>
-        /// <param name="port">代理端口</param>
-        /// <param name="user">代理用户名</param>
-        /// <param name="password">代理密码</param>
-        public static void NIMVChatSetProxy(NIMProxyType type,string host,int port,string user,string password)
-        {
-            VChatNativeMethods.nim_vchat_set_proxy(type, host, port, user, password);
+            return VChatNativeMethods.nim_vchat_audio_mute_enabled();
         }
 #endif
     }

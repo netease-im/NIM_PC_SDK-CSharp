@@ -35,13 +35,16 @@ namespace NIM
         [JsonProperty("ext")]
         public string FileExtension { get; set; }
 
+        /// <summary>
+        /// 多媒体资源id,发送方选填,接收方收到的是客户端消息id
+        /// </summary>
         [JsonProperty("res_id")]
         public string LocalResID { get; set; }
 
         /// <summary>
-        /// (可选)发送含有附件的消息时使用的场景标签,Audio Image Video File 或者可以被SDK解析到本地文件路径的自定义消息
+        ///     (可选)发送含有附件的消息时使用的场景标签(可参见nos删除策略) ,Audio Image Video File 或者可以被SDK解析到本地文件路径的自定义消息
         /// </summary>
-        [JsonProperty("upload_tag")]
-        public string UploadTag { get; set; }
+        [JsonProperty("attachment_tag")]
+        public string AttachmentTag { get; set; }
     }
 }
