@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NIMChatRoom
 {
@@ -262,11 +263,13 @@ namespace NIMChatRoom
         /// <param name="startTimeStamp">起始时间戳</param>
         /// <param name="count">查询数量</param>
         /// <param name="cb">查询结果委托</param>
-        public static void QueryMessageHistoryOnline(long roomId, long startTimeStamp, int count, QueryMessageHistoryResultDelegate cb)
+		public static void QueryMessageHistoryOnline(long roomId, long startTimeStamp, int count,bool reverse,List<NIMChatRoomMsgType> msgTypes ,QueryMessageHistoryResultDelegate cb)
         {
             QueryMessageHistoryParam param = new QueryMessageHistoryParam();
             param.Count = count;
             param.StartTime = startTimeStamp;
+			param.Reverse = reverse;
+			param.MsgTypes = msgTypes;
             string queryJsonParam = param.Serialize();
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             ChatRoomNativeMethods.nim_chatroom_get_msg_history_online_async(roomId, queryJsonParam, null, CallbackBridge.QueryMessageLogCallback, ptr);
@@ -454,6 +457,19 @@ namespace NIMChatRoom
         {
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             ChatRoomNativeMethods.nim_chatroom_queue_header_async(roomID, json, CallbackBridge.ChatroomQueueHeaderCallback, ptr);
+        }
+
+        /// <summary>
+        /// 设置Chatroom SDK统一的网络代理,不需要代理时，type设置为kNIMProxyNone，其余参数都传空字符串（端口设为0)
+        /// </summary>
+        /// <param name="type">代理类型</param>
+        /// <param name="host">代理地址</param>
+        /// <param name="port">端口</param>
+        /// <param name="user">用户名</param>
+        /// <param name="password">密码</param>
+        public static void SetProxy(NIMChatRoomProxyType type,string host,int port,string user,string password)
+        {
+            ChatRoomNativeMethods.nim_chatroom_set_proxy(type, host, port, user, password);
         }
 #endif
     }

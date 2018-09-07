@@ -293,6 +293,12 @@ namespace NIM
                NimRtsOptCbFunc cb,
                IntPtr user_data);
 
+            [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_rts_set_proxy", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+            internal static extern bool nim_rts_set_proxy(NIMProxyType type,
+          [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))]string host, int port,
+          [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string user,
+          [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string password);
+
             #endregion
         }
     }
