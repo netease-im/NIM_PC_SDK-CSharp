@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 namespace NIMChatRoom
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate void NimChatroomRequestChatroomLinkInfoCbFunc(long room_id, int error_code,[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string result,[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension,IntPtr user_data);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate void NimChatroomLoginCbFunc(long room_id, int login_step, int error_code, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string result, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension, IntPtr user_data);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -84,6 +87,12 @@ IntPtr user_data);
         [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension,
         IntPtr user_data);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void nim_chatroom_batch_update_cb(long room_id,int error_code,
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string result,
+        [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension, 
+        IntPtr user_data);
+
     internal static class ChatRoomNativeMethods
     {
         /// <summary>
@@ -127,6 +136,25 @@ IntPtr user_data);
         /// </summary>
         [DllImport(NIM.NativeConfig.ChatRoomNativeDll, EntryPoint = "nim_chatroom_init", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool nim_chatroom_init([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension);
+
+        /// <summary>
+        /// 获取匿名登录聊天室地址
+        /// </summary>
+        [DllImport(NIM.NativeConfig.ChatRoomNativeDll, EntryPoint = "nim_chatroom_request_link_service_with_anonymous", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_chatroom_request_link_service_with_anonymous(long room_id,  
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string  app_key,  
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string  json_extension,
+            NimChatroomRequestChatroomLinkInfoCbFunc callback,
+            IntPtr user_data);
+
+        /// <summary>
+        /// 匿名登录聊天室
+        /// </summary>
+        [DllImport(NIM.NativeConfig.ChatRoomNativeDll, EntryPoint = "nim_chatroom_enter_with_anoymity", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool nim_chatroom_enter_with_anoymity(long room_id,
+             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string anonymity_info,
+             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string enter_info,
+             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension);
 
         /// <summary>
         /// 聊天室登录
@@ -293,6 +321,16 @@ IntPtr user_data);
         [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension,
         nim_chatroom_queue_drop_cb_func cb,
         IntPtr user_data);
+
+        [DllImport(NIM.NativeConfig.ChatRoomNativeDll, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_chatroom_batch_upate_async(
+            long room_id,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string element_info_json_str,
+            bool need_notify,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string notify_ext,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))] string json_extension,
+            nim_chatroom_batch_update_cb cb,
+            IntPtr user_data);
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
         /// <summary>
         /// 查看麦序头元素

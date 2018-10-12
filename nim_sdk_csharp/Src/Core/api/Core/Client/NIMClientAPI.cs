@@ -493,5 +493,17 @@ namespace NIM
             var ret = ClientNativeMethods.nim_client_get_login_state(jsonExt);
             return (NIMLoginState)ret;
         }
+
+        /// <summary>
+        /// 获取NIM SDK 版本号
+        /// </summary>
+        /// <returns></returns>
+        public static string GetVersion()
+        {
+            var ptr = ClientNativeMethods.nim_client_version();
+            NimUtility.Utf8StringMarshaler marshaler = new Utf8StringMarshaler();
+            var ret = marshaler.MarshalNativeToManaged(ptr);
+            return ret != null ? ret.ToString() : null;
+        }
     }
 }

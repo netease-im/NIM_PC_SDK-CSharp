@@ -406,6 +406,15 @@ namespace NIM.Nos
             NosNativeMethods.nim_nos_reg_upload_cb(UploadCallbackEx, pair.ToIntPtr());
         }
 
+        /// <summary>
+        /// 设置是否支持快速上传
+        /// </summary>
+        /// <param name="trans">0：不支持，1：支持</param>
+        public static void SetQuickTrans(int trans)
+        {
+            NosNativeMethods.nim_nos_set_quick_trans(trans);
+        }
+
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
         /// <summary>
         /// Nos模块初始化接口，对上传资源时使用的各场景资源生命周期进行初始化，开发者最多可自定义10个场景，并指定场景资源的生命周期，并可以对缺省场景（kNIMNosDefaultTagResource、kNIMNosDefaultTagIM）进行覆盖（重新指定生命周期）

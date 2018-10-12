@@ -3,6 +3,8 @@
 namespace NIMChatRoom
 {
     //如果错误码为kResRoomLocalNeedRequestAgain，聊天室重连机制结束，则需要向IM服务器重新请求进入该聊天室权限
+    public delegate void RequestChatRoomLinkInfoDelegate(long roomId, NIM.ResponseCode errorCode, string[] linkAddrs);
+
     public delegate void ChatRoomLoginDelegate(NIMChatRoomLoginStep loginStep, NIM.ResponseCode errorCode, ChatRoomInfo roomInfo, MemberInfo memberInfo);
 
     public delegate void ExitChatRoomDelegate(long roomId, NIM.ResponseCode errorCode, NIMChatRoomExitReason reason);
@@ -37,6 +39,19 @@ namespace NIMChatRoom
 
     internal static class CallbackBridge
     {
+        public static readonly NimChatroomRequestChatroomLinkInfoCbFunc RequestChatRoomLinkInfoCallback = OnRequestChatRoomLinkInfoCallback;
+         [NIM.MonoPInvokeCallback(typeof(NimChatroomRequestChatroomLinkInfoCbFunc))]
+        private static void OnRequestChatRoomLinkInfoCallback(long room_id, int error_code, string result, string json_extension, IntPtr user_data)
+        {
+            string[] addrs = null;
+            if (error_code == (int)NIM.ResponseCode.kNIMResSuccess)
+            {
+                addrs = NimUtility.Json.JsonParser.Deserialize<string[]>(result);
+            }
+
+            NimUtility.DelegateConverter.InvokeOnce<RequestChatRoomLinkInfoDelegate>(user_data, room_id, (NIM.ResponseCode)error_code, addrs);
+        }
+
         public static readonly NimChatroomGetMembersCbFunc QueryMembersCallback = OnQueryMembersCompleted;
 
         [NIM.MonoPInvokeCallback(typeof(NimChatroomGetMembersCbFunc))]

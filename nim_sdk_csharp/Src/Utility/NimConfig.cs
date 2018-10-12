@@ -78,7 +78,7 @@ namespace NimUtility
         [Newtonsoft.Json.JsonProperty("login_retry_max_times")]
         public int MaxLoginRetry { get; set; }
 
-#if UNITY_IPHONE || UNITY_IOS
+#if UNITY_IPHONE || UNITY_IOS || UNITY_ANDROID
 		/// <summary>
 		/// iOS 推送证书名配置
 		/// </summary>

@@ -174,6 +174,12 @@ namespace NIM
         /// </summary>
         [JsonProperty("login_time")]
         public long LoginTimeStamp { get; set; }
+
+        /// <summary>
+        /// 本次登录用户自定义字段
+        /// </summary>
+        [JsonProperty("custom_tag")]
+        public string CustomTag { get; set; }
     }
 
     public class NIMLoginResult : NimUtility.NimJsonObject<NIMLoginResult>

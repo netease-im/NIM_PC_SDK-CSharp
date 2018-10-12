@@ -71,13 +71,14 @@ namespace NIMChatRoom
         /// <summary>
         /// 初始化聊天实模块
         /// </summary>
-        public static void Init()
+        public static void Init(NIMChatRoomConfig config = null)
         {
             if (_chatRoomInitialized)
                 return;
             try
             {
-                ChatRoomNativeMethods.nim_chatroom_init("");
+                string json = config != null ? config.Serialize() : "";
+                ChatRoomNativeMethods.nim_chatroom_init(json);
                 RegisterLoginCallback();
                 RegisterExitChatRoomCallback();
                 RegisterLinkStateChangedCallback();
@@ -91,6 +92,38 @@ namespace NIMChatRoom
                 System.Diagnostics.Debug.WriteLine(e.ToString());
             }
             _chatRoomInitialized = true;
+        }
+        /// <summary>
+        /// 获取匿名登录聊天室地址(仅供demo测试使用，用户需要自己的应用服务器来获取聊天室地址)
+        /// </summary>
+        /// <param name="roomId"></param>
+        /// <param name="appKey"></param>
+        /// <param name="callback"></param>
+        public static void RequestLinkInfoWithAnonymous(long roomId,string appKey, RequestChatRoomLinkInfoDelegate callback)
+        {
+            if (string.IsNullOrEmpty(appKey))
+                return;
+            var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(callback);
+            ChatRoomNativeMethods.nim_chatroom_request_link_service_with_anonymous(roomId, appKey, null, CallbackBridge.RequestChatRoomLinkInfoCallback, ptr);
+        }
+
+
+        public static void LoginWithAnonymous(long roomId, AnonymousInfo anonymityInfo, LoginData loginData = null)
+        {
+            string loginJson = string.Empty;
+            if (loginData != null)
+            {
+                loginJson = loginData.Serialize();
+            }
+
+            if (anonymityInfo == null)
+            {
+                return;
+            }
+
+            string anonymity_info = anonymityInfo.Serialize();
+
+            ChatRoomNativeMethods.nim_chatroom_enter_with_anoymity(roomId, anonymity_info, loginJson, null);
         }
 
         /// <summary>
@@ -444,6 +477,23 @@ namespace NIMChatRoom
         {
             var ptr = NimUtility.DelegateConverter.ConvertToIntPtr(cb);
             ChatRoomNativeMethods.nim_chatroom_queue_offer_async(roomId, element_key, elemnet_value, json_extension, CallbackBridge.ChatroomQueueOfferCallback, ptr);
+        }
+
+        private static nim_chatroom_batch_update_cb BatchUpdataCallback;
+
+        /// <summary>
+        /// 批量更新队列信息
+        /// </summary>
+        /// <param name="roomID">聊天室ID</param>
+        /// <param name="elementInfoJson">批量更新元素</param>
+        /// <param name="needNotify">是否聊天室内广播通知</param>
+        /// <param name="notify">通知中的自定义字段，长度限制2048</param>
+        /// <param name="cb">回调函数</param>
+        /// <param name="userData"></param>
+        public static void UpdateQueue(long roomID, string elementInfoJson, bool needNotify, string notify, nim_chatroom_batch_update_cb cb, IntPtr userData)
+        {
+            BatchUpdataCallback = cb;
+            ChatRoomNativeMethods.nim_chatroom_batch_upate_async(roomID, elementInfoJson, needNotify, notify, null, BatchUpdataCallback, userData);
         }
 
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY

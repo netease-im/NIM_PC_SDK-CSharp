@@ -153,7 +153,8 @@ namespace NIM.Nos
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_reg_upload_cb", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nim_nos_reg_upload_cb(UploadCb cb, IntPtr user_data);
 
-
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void nim_nos_set_quick_trans(int quick_trans);
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_nos_upload_ex", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]

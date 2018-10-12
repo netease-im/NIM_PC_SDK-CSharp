@@ -81,5 +81,8 @@ namespace NIM
 
         [DllImport(NIM.NativeConfig.NIMNativeDLL, EntryPoint = "nim_client_get_login_state", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int nim_client_get_login_state([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(NimUtility.Utf8StringMarshaler))]string json_extension);
+
+        [DllImport(NIM.NativeConfig.NIMNativeDLL, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr nim_client_version();
     }
 }

@@ -213,7 +213,6 @@ namespace NIMChatRoom
 		[JsonProperty(PropertyName = "history_save")]
 		public int SaveHistory { get; set; }
 
-
 #if NIMAPI_UNDER_WIN_DESKTOP_ONLY
 
 

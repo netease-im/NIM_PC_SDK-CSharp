@@ -18,7 +18,18 @@ namespace NIM
 
         [JsonProperty("team_member")]
         public NIMTeamMemberInfo MemberInfo { get; set; }
+
+        [JsonProperty("duration")]
+        public int NetCallDuration { get; set; }
+
+        [JsonProperty("calltype")]
+        public int NetCallType { get; set; }
+
+        [JsonProperty("time")]
+        public long NetCallTime { get; set; }
+
     }
+
 
     public class NotificationData
     {
@@ -29,9 +40,12 @@ namespace NIM
         public NIMNotificationType NotificationId { get; set; }
     }
 
+
     public class NIMTeamNotificationMessage : NIMIMMessage
     {
         [JsonProperty(AttachmentPath)]
         public NotificationData NotifyMsgData { get; set; }
     }
+
+
 }
