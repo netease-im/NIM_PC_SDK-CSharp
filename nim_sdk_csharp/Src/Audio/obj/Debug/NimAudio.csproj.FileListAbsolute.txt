@@ -1,5 +1,0 @@
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimAudio.dll
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Debug\NimAudio.pdb
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Audio\obj\Debug\NimAudio.csprojResolveAssemblyReference.cache
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Audio\obj\Debug\NimAudio.dll
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Audio\obj\Debug\NimAudio.pdb

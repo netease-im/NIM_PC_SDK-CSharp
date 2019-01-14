@@ -50,7 +50,7 @@ namespace NimUtility
             return ConvertFromIntPtr<object>(ptr);
         }
 
-        public static void Invoke<TDelegate>(this IntPtr ptr,params object[] args)
+        public static void Invoke<TDelegate>(this IntPtr ptr, params object[] args)
         {
             var d = ConvertFromIntPtr<TDelegate>(ptr);
             var delegateObj = d as Delegate;
@@ -73,7 +73,7 @@ namespace NimUtility
             }
         }
 
-        static bool CheckDelegateParams(Delegate d,params object[] args)
+        static bool CheckDelegateParams(Delegate d, params object[] args)
         {
             var ps = d.Method.GetParameters();
             if (args == null)
@@ -99,12 +99,101 @@ namespace NimUtility
 
         public static void ClearHandles()
         {
-            foreach(var item in _allocedMemDic)
+            foreach (var item in _allocedMemDic)
             {
                 GCHandle handle = GCHandle.FromIntPtr(item.Key);
                 handle.Free();
             }
             _allocedMemDic.Clear();
         }
+    }
+
+    /// <summary>
+    /// IntPtr 的一些辅助操作,解决.NET framework 4.0以下不支持IntPtr add等操作 
+    /// </summary>
+    public static class IntPtrExtensions
+    {
+        #region Methods: Arithmetics
+        public static IntPtr Decrement(this IntPtr pointer, Int32 value)
+        {
+            return Increment(pointer, -value);
+        }
+
+        public static IntPtr Decrement(this IntPtr pointer, Int64 value)
+        {
+            return Increment(pointer, -value);
+        }
+
+        public static IntPtr Decrement(this IntPtr pointer, IntPtr value)
+        {
+            switch (IntPtr.Size)
+            {
+                case sizeof(Int32):
+                    return (new IntPtr(pointer.ToInt32() - value.ToInt32()));
+
+                default:
+                    return (new IntPtr(pointer.ToInt64() - value.ToInt64()));
+            }
+        }
+
+        public static IntPtr Increment(this IntPtr pointer, Int32 value)
+        {
+            unchecked
+            {
+                switch (IntPtr.Size)
+                {
+                    case sizeof(Int32):
+                        return (new IntPtr(pointer.ToInt32() + value));
+
+                    default:
+                        return (new IntPtr(pointer.ToInt64() + value));
+                }
+            }
+        }
+
+        public static IntPtr Increment(this IntPtr pointer, Int64 value)
+        {
+            unchecked
+            {
+                switch (IntPtr.Size)
+                {
+                    case sizeof(Int32):
+                        return (new IntPtr((Int32)(pointer.ToInt32() + value)));
+
+                    default:
+                        return (new IntPtr(pointer.ToInt64() + value));
+                }
+            }
+        }
+
+        public static IntPtr Increment(this IntPtr pointer, IntPtr value)
+        {
+            unchecked
+            {
+                switch (IntPtr.Size)
+                {
+                    case sizeof(int):
+                        return new IntPtr(pointer.ToInt32() + value.ToInt32());
+                    default:
+                        return new IntPtr(pointer.ToInt64() + value.ToInt64());
+                }
+            }
+        }
+
+        public static IntPtr CreateFromeIntPtr(this IntPtr pointer)
+        {
+            unchecked
+            {
+                switch (IntPtr.Size)
+                {
+                    case sizeof(int):
+                        return new IntPtr(Marshal.ReadInt32(pointer));
+                    default:
+                        return new IntPtr(Marshal.ReadInt64(pointer));
+                }
+            }
+        }
+
+        #endregion
     }
 }

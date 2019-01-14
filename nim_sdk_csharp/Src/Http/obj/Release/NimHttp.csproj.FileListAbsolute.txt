@@ -1,5 +1,0 @@
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Release\NimHttp.dll
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\Release\NimHttp.pdb
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Http\obj\Release\NimHttp.csprojResolveAssemblyReference.cache
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Http\obj\Release\NimHttp.dll
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Http\obj\Release\NimHttp.pdb

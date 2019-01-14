@@ -197,6 +197,9 @@
     <Compile Include="api\NIMToolsAPI.cs" />
     <Compile Include="api\NIMToolsDef.cs" />
     <Compile Include="api\Session\SessionNativeMethods.cs" />
+    <Compile Include="api\Signaling\NIMSignalingAPI.cs" />
+    <Compile Include="api\Signaling\NIMSignalingDef.cs" />
+    <Compile Include="api\Signaling\SignalingNativeMethods.cs" />
     <Compile Include="api\Subscribe\NIMEventInfo.cs" />
     <Compile Include="api\Subscribe\NIMSubscribeApi.cs" />
     <Compile Include="api\Subscribe\NIMSubscribeNativeMethods.cs" />

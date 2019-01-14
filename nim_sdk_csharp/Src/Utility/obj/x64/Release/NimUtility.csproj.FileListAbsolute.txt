@@ -1,5 +1,0 @@
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\NimUtility.dll
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\bin\x64\Release\NimUtility.pdb
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x64\Release\NimUtility.dll
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x64\Release\NimUtility.pdb
-D:\yinshipin\Embedded\trunk\universal_sdk_api\csharp\nim\Src\Utility\obj\x64\Release\NimUtility.csprojResolveAssemblyReference.cache
