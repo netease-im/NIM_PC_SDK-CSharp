@@ -1,5 +1,7 @@
 # Windows(PC) SDK 开发手册(C# 封装层)
 
+仓库已废弃，新仓库请通过传送门：[NIM-CSharp-SDK](https://github.com/netease-im/NIM-CSharp-SDK)
+
 ## 前言
 
 ### 版本更新
